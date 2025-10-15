@@ -16,6 +16,16 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Thought Podcast - Capacity, Connection, Condition, Commission",
   description: "A conversation at the intersection of Capacity, Connection, Condition, and Commission.",
+  openGraph: {
+    images: [
+      {
+        url: "/pod_art.png",
+        width: 1200,
+        height: 630,
+        alt: "Thought Podcast - Capacity, Connection, Condition, Commission",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
