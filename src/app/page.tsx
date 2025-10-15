@@ -1,103 +1,88 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import Starfield from '@/components/Starfield';
+import Landing from '@/components/Landing';
+import BackgroundAudio from '@/components/BackgroundAudio';
+import FourCs from '@/components/FourCs';
+import FourCsStory from '@/components/FourCsStory';
+import EpisodeList from '@/components/EpisodeList';
+import ThoughtPlayer from '@/components/ThoughtPlayer';
+import { Thought } from '@/types';
+import { useAudioStore } from '@/lib/audioStore';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [episodes, setEpisodes] = useState<Thought[]>([]);
+  const [selectedTheme, setSelectedTheme] = useState<Thought['theme'] | null>(null);
+  const { playEpisode } = useAudioStore();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    // Fetch episodes from API
+    fetch('/api/episodes')
+      .then(res => res.json())
+      .then(data => setEpisodes(data))
+      .catch(err => console.error('Error fetching episodes:', err));
+  }, []);
+
+  const handlePlayLatest = () => {
+    if (episodes.length > 0) {
+      playEpisode(episodes[0]);
+      // Smooth scroll to episodes section
+      document.getElementById('episodes')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleThemeSelect = (theme: Thought['theme'] | null) => {
+    setSelectedTheme(theme);
+    // Scroll to episodes list when theme is selected
+    if (theme) {
+      document.getElementById('episodes')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Map theme to color for starfield tinting
+  const getThemeColor = (theme: Thought['theme'] | null): string | undefined => {
+    const colors = {
+      Capacity: '#60A5FA',
+      Connection: '#4ADE80',
+      Condition: '#C084FC',
+      Commission: '#FB923C',
+    };
+    return theme ? colors[theme] : undefined;
+  };
+
+  return (
+  <div className="min-h-screen relative flex flex-col gap-16 pt-8 pb-16">
+      <Starfield themeColor={getThemeColor(selectedTheme)} />
+      <BackgroundAudio />
+      
+      <Landing 
+        latestEpisode={episodes[0] || null}
+        onPlayLatest={handlePlayLatest} 
+      />
+
+
+
+      <FourCs 
+        selectedTheme={selectedTheme}
+        onThemeSelect={handleThemeSelect}
+      />
+
+      <EpisodeList 
+        episodes={episodes}
+        selectedTheme={selectedTheme}
+      />
+
+      <ThoughtPlayer episodes={episodes} />
+
+      {/* Footer */}
+      <footer className="py-12 px-6 border-t border-white/10">
+        <div className="max-w-4xl mx-auto text-center text-white/50 text-sm">
+          <p>&copy; 2025 Thought Podcast. All rights reserved.</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
       </footer>
     </div>
   );
 }
+
+

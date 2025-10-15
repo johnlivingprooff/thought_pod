@@ -1,0 +1,78 @@
+// FourCsStory.tsx
+'use client';
+
+import { useRef } from 'react';
+import Link from 'next/link';
+import { motion, useScroll, useTransform } from 'framer-motion';
+
+const sections = [
+  {
+    id: 'capacity',
+    color: '#60A5FA',
+    symbol: <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="#60A5FA" opacity="0.2" /><circle cx="24" cy="24" r="8" fill="#60A5FA" /></svg>,
+    quote: 'Capacity is the ability to grow, learn, and expand our potential.'
+  },
+  {
+    id: 'connection',
+    color: '#4ADE80',
+    symbol: <svg width="48" height="48" viewBox="0 0 48 48"><rect x="12" y="12" width="24" height="24" rx="12" fill="#4ADE80" opacity="0.2" /><rect x="20" y="20" width="8" height="8" rx="4" fill="#4ADE80" /></svg>,
+    quote: 'Connection is the art of fostering authentic relationships.'
+  },
+  {
+    id: 'condition',
+    color: '#C084FC',
+    symbol: <svg width="48" height="48" viewBox="0 0 48 48"><ellipse cx="24" cy="24" rx="16" ry="10" fill="#C084FC" opacity="0.2" /><ellipse cx="24" cy="24" rx="6" ry="4" fill="#C084FC" /></svg>,
+    quote: 'Condition is understanding and accepting our present state.'
+  },
+  {
+    id: 'commission',
+    color: '#FB923C',
+    symbol: <svg width="48" height="48" viewBox="0 0 48 48"><polygon points="24,8 40,40 8,40" fill="#FB923C" opacity="0.2" /><polygon points="24,16 34,36 14,36" fill="#FB923C" /></svg>,
+    quote: 'Commission is embracing our purpose and calling in the world.'
+  }
+];
+
+export default function FourCsStory() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ container: ref });
+
+    return (
+      <section
+        ref={ref}
+        className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-x-hidden"
+        aria-label="Scroll-based story of the Four Cs"
+        tabIndex={0}
+      >
+      {sections.map((section, i) => {
+        // Animate opacity and y based on scroll
+        const start = i / sections.length;
+        const end = (i + 1) / sections.length;
+        const opacity = useTransform(scrollYProgress, [start, end], [0, 1]);
+        const y = useTransform(scrollYProgress, [start, end], [40, 0]);
+        return (
+          <motion.div
+            key={section.id}
+            style={{ opacity, y }}
+            className="absolute left-0 right-0 mx-auto max-w-xl flex flex-col items-center justify-center"
+          >
+               <div className="mb-8">
+                 {typeof section.symbol === 'string' ? (
+                   <img src={section.symbol} alt={section.id + ' symbol'} loading="lazy" />
+                 ) : section.symbol}
+               </div>
+               <motion.h2
+                 className="text-3xl md:text-5xl font-bold mb-4 text-center"
+                 style={{ color: section.color }}
+               >
+                  <Link href={`#${section.id}`} tabIndex={0} aria-label={`Jump to ${section.id}`}>{section.id.charAt(0).toUpperCase() + section.id.slice(1)}</Link>
+               </motion.h2>
+            <motion.p className="text-lg md:text-2xl text-white/80 text-center max-w-md mb-8">
+              {section.quote}
+            </motion.p>
+          </motion.div>
+        );
+      })}
+      <div className="h-[400vh]" />
+    </section>
+  );
+}
