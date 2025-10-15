@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import Starfield from '@/components/Starfield';
 import Landing from '@/components/Landing';
-import BackgroundAudio from '@/components/BackgroundAudio';
+import BackgroundAmbientAudio from '@/components/BackgroundAmbientAudio';
 import FourCs from '@/components/FourCs';
-import FourCsStory from '@/components/FourCsStory';
 import EpisodeList from '@/components/EpisodeList';
 import ThoughtPlayer from '@/components/ThoughtPlayer';
 import { Thought } from '@/types';
@@ -54,10 +53,9 @@ export default function Home() {
   return (
   <div className="min-h-screen relative flex flex-col gap-16 pt-8 pb-16">
       <Starfield themeColor={getThemeColor(selectedTheme)} />
-      <BackgroundAudio />
+      <BackgroundAmbientAudio />
       
       <Landing 
-        latestEpisode={episodes[0] || null}
         onPlayLatest={handlePlayLatest} 
       />
 

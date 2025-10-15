@@ -16,7 +16,7 @@ interface ShootingStarProps {
 }
 
 function ShootingStar({ start, end, duration, color, onFinished }: ShootingStarProps) {
-  const ref = useRef<any>(null);
+  const ref = useRef(null);
   const [progress, setProgress] = useState(0);
   useEffect(() => {
     let frame: number;
@@ -135,7 +135,12 @@ export default function Starfield({ themeColor }: StarfieldProps) {
   type ShootingStarState = { id: number, start: [number, number, number], end: [number, number, number], duration: number, color: string };
   const [shootingStars, setShootingStars] = useState<ShootingStarState[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalEpisode, setModalEpisode] = useState<any>(null);
+  const [modalEpisode, setModalEpisode] = useState<{
+    title: string;
+    excerpt: string;
+    soundbiteUrl?: string;
+    fullEpisodeUrl?: string;
+  } | undefined>(undefined);
   // Randomly spawn shooting stars
   useEffect(() => {
     const interval = setInterval(() => {

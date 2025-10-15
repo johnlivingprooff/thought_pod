@@ -5,11 +5,10 @@ import Image from 'next/image';
 import { Thought } from '@/types';
 
 interface LandingProps {
-  latestEpisode: Thought | null;
   onPlayLatest: () => void;
 }
 
-export default function Landing({ latestEpisode, onPlayLatest }: LandingProps) {
+export default function Landing({ onPlayLatest }: LandingProps) {
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center px-6 py-20">
       <motion.div

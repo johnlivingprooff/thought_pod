@@ -3,6 +3,7 @@
 
 import { useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 const sections = [
@@ -36,42 +37,45 @@ export default function FourCsStory() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ container: ref });
 
-    return (
-      <section
-        ref={ref}
-        className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-x-hidden"
-        aria-label="Scroll-based story of the Four Cs"
-        tabIndex={0}
-      >
-      {sections.map((section, i) => {
-        // Animate opacity and y based on scroll
-        const start = i / sections.length;
-        const end = (i + 1) / sections.length;
-        const opacity = useTransform(scrollYProgress, [start, end], [0, 1]);
-        const y = useTransform(scrollYProgress, [start, end], [40, 0]);
-        return (
-          <motion.div
-            key={section.id}
-            style={{ opacity, y }}
-            className="absolute left-0 right-0 mx-auto max-w-xl flex flex-col items-center justify-center"
+  // Precompute transforms for each section
+  const transforms = sections.map((_, i) => {
+    const start = i / sections.length;
+    const end = (i + 1) / sections.length;
+    return {
+      opacity: useTransform(scrollYProgress, [start, end], [0, 1]),
+      y: useTransform(scrollYProgress, [start, end], [40, 0])
+    };
+  });
+
+  return (
+    <section
+      ref={ref}
+      className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-x-hidden"
+      aria-label="Scroll-based story of the Four Cs"
+      tabIndex={0}
+    >
+      {sections.map((section, i) => (
+        <motion.div
+          key={section.id}
+          style={transforms[i]}
+          className="absolute left-0 right-0 mx-auto max-w-xl flex flex-col items-center justify-center"
+        >
+          <div className="mb-8">
+            {typeof section.symbol === 'string' ? (
+              <Image src={section.symbol} alt={section.id + ' symbol'} width={48} height={48} loading="lazy" />
+            ) : section.symbol}
+          </div>
+          <motion.h2
+            className="text-3xl md:text-5xl font-bold mb-4 text-center"
+            style={{ color: section.color }}
           >
-               <div className="mb-8">
-                 {typeof section.symbol === 'string' ? (
-                   <img src={section.symbol} alt={section.id + ' symbol'} loading="lazy" />
-                 ) : section.symbol}
-               </div>
-               <motion.h2
-                 className="text-3xl md:text-5xl font-bold mb-4 text-center"
-                 style={{ color: section.color }}
-               >
-                  <Link href={`#${section.id}`} tabIndex={0} aria-label={`Jump to ${section.id}`}>{section.id.charAt(0).toUpperCase() + section.id.slice(1)}</Link>
-               </motion.h2>
-            <motion.p className="text-lg md:text-2xl text-white/80 text-center max-w-md mb-8">
-              {section.quote}
-            </motion.p>
-          </motion.div>
-        );
-      })}
+            <Link href={`#${section.id}`} tabIndex={0} aria-label={`Jump to ${section.id}`}>{section.id.charAt(0).toUpperCase() + section.id.slice(1)}</Link>
+          </motion.h2>
+          <motion.p className="text-lg md:text-2xl text-white/80 text-center max-w-md mb-8">
+            {section.quote}
+          </motion.p>
+        </motion.div>
+      ))}
       <div className="h-[400vh]" />
     </section>
   );
