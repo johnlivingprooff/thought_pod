@@ -134,7 +134,6 @@ export default function Starfield({ themeColor }: StarfieldProps) {
   const [scrollY, setScrollY] = useState(0);
   type ShootingStarState = { id: number, start: [number, number, number], end: [number, number, number], duration: number, color: string };
   const [shootingStars, setShootingStars] = useState<ShootingStarState[]>([]);
-  const [modalOpen, setModalOpen] = useState(false);
   const [modalEpisode, setModalEpisode] = useState<{
     title: string;
     excerpt: string;
@@ -223,7 +222,7 @@ export default function Starfield({ themeColor }: StarfieldProps) {
             ))}
           </Canvas>
         </div>
-        <ThoughtCapsuleModal open={modalOpen} onClose={() => setModalOpen(false)} episode={modalEpisode} />
+  <ThoughtCapsuleModal open={!!modalEpisode} onClose={() => setModalEpisode(undefined)} episode={modalEpisode} />
       </>
   );
 }

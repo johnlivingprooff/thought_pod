@@ -37,15 +37,18 @@ export default function FourCsStory() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ container: ref });
 
-  // Precompute transforms for each section
-  const transforms = sections.map((_, i) => {
-    const start = i / sections.length;
-    const end = (i + 1) / sections.length;
-    return {
-      opacity: useTransform(scrollYProgress, [start, end], [0, 1]),
-      y: useTransform(scrollYProgress, [start, end], [40, 0])
-    };
-  });
+  // Custom hook to generate transforms for each section
+  function useSectionTransforms() {
+    return sections.map((_, i) => {
+      const start = i / sections.length;
+      const end = (i + 1) / sections.length;
+      return {
+        opacity: useTransform(scrollYProgress, [start, end], [0, 1]),
+        y: useTransform(scrollYProgress, [start, end], [40, 0])
+      };
+    });
+  }
+  const transforms = useSectionTransforms();
 
   return (
     <section
