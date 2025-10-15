@@ -41,6 +41,7 @@ export default function RootLayout({
       >
   <ThoughtFlowTransition show={true} />
   {children}
+  <Analytics />
       </body>
     </html>
   );
