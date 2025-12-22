@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import ThoughtFlowTransition from '@/components/ThoughtFlowTransition';
+import Navigation from '@/components/Navigation';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -39,9 +40,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-  <ThoughtFlowTransition show={true} />
-  {children}
-  <Analytics />
+        <Navigation />
+        <ThoughtFlowTransition show={true} />
+        {children}
+        <Analytics />
       </body>
     </html>
   );

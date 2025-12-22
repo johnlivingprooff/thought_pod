@@ -82,3 +82,24 @@ export async function getThoughtsByTheme(theme: Thought['theme']): Promise<Thoug
   const thoughts = await parseRSSFeed();
   return thoughts.filter(thought => thought.theme === theme);
 }
+
+export async function getEpisodesFromRSS(): Promise<{ id: string; title: string; slug: string; published_at: string }[]> {
+  try {
+    console.log('Fetching episodes from RSS...');
+    const thoughts = await parseRSSFeed();
+    console.log(`Parsed ${thoughts.length} thoughts from RSS`);
+
+    const episodes = thoughts.map((thought, index) => ({
+      id: thought.id,
+      title: thought.title,
+      slug: thought.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      published_at: thought.pubDate
+    }));
+
+    console.log('First few episodes:', episodes.slice(0, 3));
+    return episodes;
+  } catch (error) {
+    console.error('Error fetching episodes from RSS:', error);
+    return [];
+  }
+}

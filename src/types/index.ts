@@ -14,3 +14,31 @@ export interface CoreConcept {
   longDescription?: string;
   color: string;
 }
+
+export interface Note {
+  id: string;
+  title?: string;
+  episode_id?: string;
+  author_name?: string;
+  author_type: 'admin' | 'community';
+  content: string;
+  status: 'published' | 'pending' | 'flagged';
+  created_at: string;
+}
+
+export interface NoteReply {
+  id: string;
+  note_id: string;
+  author_name?: string;
+  author_type: 'admin' | 'community';
+  content: string;
+  created_at: string;
+}
+
+export interface Episode {
+  id: string;
+  title: string;
+  slug: string;
+  published_at?: string;
+  created_at: string;
+}
