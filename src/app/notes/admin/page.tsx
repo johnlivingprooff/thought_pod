@@ -1,6 +1,5 @@
 import { Suspense } from 'react';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { getAllNotes } from '@/lib/db';
 import { Note } from '@/types';
 import Starfield from '@/components/Starfield';

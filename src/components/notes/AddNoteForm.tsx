@@ -6,7 +6,6 @@ import { Episode } from '@/types';
 import { addNote } from '@/app/notes/actions';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface AddNoteFormProps {
   episodes: Episode[];
@@ -292,15 +291,14 @@ export default function AddNoteForm({ episodes, onSuccess }: AddNoteFormProps) {
                 <div className="prose prose-invert prose-sm max-w-none">
                   <ReactMarkdown
                     components={{
-                      code({ node, inline, className, children, ...props }) {
+                      code({ className, children, ...props }) {
+                        const isInline = !String(children).includes('\n');
                         const match = /language-(\w+)/.exec(className || '');
-                        return !inline && match ? (
+                        return !isInline && match ? (
                           <SyntaxHighlighter
-                            style={oneDark}
                             language={match[1]}
                             PreTag="div"
-                            className="rounded-md"
-                            {...props}
+                            className="rounded-md text-xs"
                           >
                             {String(children).replace(/\n$/, '')}
                           </SyntaxHighlighter>

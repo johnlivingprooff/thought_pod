@@ -1,7 +1,6 @@
 import { Note } from '@/types';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface LatestNotesProps {
   editorial: Note | null;
@@ -34,15 +33,14 @@ export default function LatestNotes({ editorial, community }: LatestNotesProps) 
               <div className="mb-4 prose prose-invert prose-sm max-w-none">
                 <ReactMarkdown
                   components={{
-                    code({ node, inline, className, children, ...props }) {
+                    code({ className, children, ...props }) {
+                      const isInline = !String(children).includes('\n');
                       const match = /language-(\w+)/.exec(className || '');
-                      return !inline && match ? (
+                      return !isInline && match ? (
                         <SyntaxHighlighter
-                          style={oneDark}
                           language={match[1]}
                           PreTag="div"
                           className="rounded-md text-xs"
-                          {...props}
                         >
                           {String(children).replace(/\n$/, '')}
                         </SyntaxHighlighter>
@@ -107,15 +105,14 @@ export default function LatestNotes({ editorial, community }: LatestNotesProps) 
               <div className="mb-4 prose prose-invert prose-sm max-w-none">
                 <ReactMarkdown
                   components={{
-                    code({ node, inline, className, children, ...props }) {
+                    code({ className, children, ...props }) {
+                      const isInline = !String(children).includes('\n');
                       const match = /language-(\w+)/.exec(className || '');
-                      return !inline && match ? (
+                      return !isInline && match ? (
                         <SyntaxHighlighter
-                          style={oneDark}
                           language={match[1]}
                           PreTag="div"
                           className="rounded-md text-xs"
-                          {...props}
                         >
                           {String(children).replace(/\n$/, '')}
                         </SyntaxHighlighter>

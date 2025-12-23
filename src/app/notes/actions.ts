@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
-import { insertNote, insertReply } from '@/lib/db';
+import { insertNote, insertReply, getNoteReplies } from '@/lib/db';
 import { sendNoteNotification } from '@/lib/email';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -71,12 +71,13 @@ export async function addReply(formData: FormData) {
     revalidatePath('/notes');
   } catch (error) {
     console.error('Error inserting reply:', error);
-    console.error('Error details:', {
+    const errorDetails = error instanceof Error ? {
       message: error.message,
-      code: error.code,
-      errno: error.errno,
+      code: (error as { code?: string }).code,
+      errno: (error as { errno?: number }).errno,
       stack: error.stack
-    });
+    } : { message: 'Unknown error' };
+    console.error('Error details:', errorDetails);
     throw new Error('Failed to add reply');
   }
 }

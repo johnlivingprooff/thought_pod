@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import logo from '@/assets/2.png';
@@ -32,7 +33,7 @@ export default function Navigation() {
             className="text-white font-bold text-xl hover:text-white/80 transition-colors"
           >
             {logo && (
-              <img src={logo.src} alt="Thought Pod" className="h-15 w-auto" />
+              <Image src={logo.src} alt="Thought Pod" height={60} width={60} className="h-15 w-auto" />
             )}
           </Link>
 

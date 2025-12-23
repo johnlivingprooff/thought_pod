@@ -57,7 +57,7 @@ export default async function EpisodeNotesPage({ params }: EpisodePageProps) {
         {/* Notes Feed */}
         <div className="pb-16 px-6">
           <div className="max-w-4xl mx-auto">
-            <NotesList notes={notes} />
+            <NotesList notes={notes} episodes={episodes} />
           </div>
         </div>
 

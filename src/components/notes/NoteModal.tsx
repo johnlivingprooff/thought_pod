@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Note, NoteReply } from '@/types';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { addReply } from '@/app/notes/actions';
 
 interface NoteModalProps {
@@ -132,11 +131,9 @@ export default function NoteModal({ note, replies, isOpen, onClose, episodes }: 
                         const isInline = !String(children).includes('\n');
                         return !isInline && match ? (
                           <SyntaxHighlighter
-                            style={oneDark}
                             language={match[1]}
                             PreTag="div"
                             className="rounded-md text-xs"
-                            {...props}
                           >
                             {String(children).replace(/\n$/, '')}
                           </SyntaxHighlighter>

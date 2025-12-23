@@ -29,7 +29,7 @@ export default function AdminLogin() {
       } else {
         setError('Invalid secret key');
       }
-    } catch (err) {
+    } catch {
       setError('Login failed');
     } finally {
       setIsLoading(false);

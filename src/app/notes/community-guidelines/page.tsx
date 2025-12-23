@@ -2,7 +2,6 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import Starfield from '@/components/Starfield';
 
 async function getCommunityGuidelines() {
@@ -23,15 +22,14 @@ export default async function CommunityGuidelinesPage() {
             <div className="prose prose-invert prose-lg max-w-none">
               <ReactMarkdown
                 components={{
-                  code({ node, inline, className, children, ...props }) {
+                  code({ className, children, ...props }) {
+                    const isInline = !String(children).includes('\n');
                     const match = /language-(\w+)/.exec(className || '');
-                    return !inline && match ? (
+                    return !isInline && match ? (
                       <SyntaxHighlighter
-                        style={oneDark}
                         language={match[1]}
                         PreTag="div"
                         className="rounded-md"
-                        {...props}
                       >
                         {String(children).replace(/\n$/, '')}
                       </SyntaxHighlighter>

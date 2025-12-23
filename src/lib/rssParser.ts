@@ -40,7 +40,7 @@ function determineTheme(title: string, description: string): Thought['theme'] {
     ] as Thought['theme'];
   }
 
-  const theme = Object.entries(scores).find(([_, score]) => score === maxScore)?.[0];
+  const theme = Object.entries(scores).find((entry) => entry[1] === maxScore)?.[0];
   return (theme as Thought['theme']) || 'Capacity';
 }
 
@@ -89,7 +89,7 @@ export async function getEpisodesFromRSS(): Promise<{ id: string; title: string;
     const thoughts = await parseRSSFeed();
     console.log(`Parsed ${thoughts.length} thoughts from RSS`);
 
-    const episodes = thoughts.map((thought, index) => ({
+    const episodes = thoughts.map((thought) => ({
       id: thought.id,
       title: thought.title,
       slug: thought.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
