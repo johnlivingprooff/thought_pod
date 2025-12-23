@@ -4,12 +4,6 @@
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "devCommand": "npm run dev",
-  "functions": {
-    "src/app/api/**/*.ts": {
-      "runtime": "@vercel/node",
-      "maxDuration": 10
-    }
-  },
   "rewrites": [
     {
       "source": "/api/:path*",
