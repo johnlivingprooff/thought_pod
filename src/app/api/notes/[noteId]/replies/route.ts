@@ -7,7 +7,8 @@ export async function GET(
 ) {
   try {
     const { noteId } = await params;
-    const replies = getNoteReplies.all(noteId);
+    const result = await getNoteReplies(noteId);
+    const replies = result.rows;
     return NextResponse.json(replies);
   } catch (error) {
     console.error('Error fetching replies:', error);

@@ -10,7 +10,8 @@ interface EpisodePageProps {
 }
 
 async function getEpisodeBySlug(slug: string): Promise<Episode | null> {
-  const episodes = getEpisodes.all() as Episode[];
+  const result = await getEpisodes();
+  const episodes = result.rows as Episode[];
   return episodes.find(ep => ep.slug === slug) || null;
 }
 
@@ -21,8 +22,10 @@ export default async function EpisodeNotesPage({ params }: EpisodePageProps) {
     notFound();
   }
 
-  const rawNotes: RawNote[] = getNotesByEpisode.all(episode.id) as RawNote[];
-  const episodes = getEpisodes.all() as Episode[];
+  const notesResult = await getNotesByEpisode(episode.id);
+  const episodesResult = await getEpisodes();
+  const rawNotes: RawNote[] = notesResult.rows as RawNote[];
+  const episodes = episodesResult.rows as Episode[];
 
   // Convert is_official from integer (0/1) to boolean
   const notes = rawNotes.map(note => ({

@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    updateNoteStatus.run(status, noteId);
+    await updateNoteStatus(status, noteId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error updating note status:', error);

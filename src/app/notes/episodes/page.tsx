@@ -11,8 +11,10 @@ import { checkAdminStatus } from '@/app/notes/actions';
 export const dynamic = 'force-dynamic';
 
 export default async function EpisodeNotesPage() {
-  const rawNotes: RawNote[] = getAllNotes.all() as RawNote[];
-  const episodes = getEpisodes.all() as Episode[];
+  const notesResult = await getAllNotes();
+  const episodesResult = await getEpisodes();
+  const rawNotes: RawNote[] = notesResult.rows as RawNote[];
+  const episodes = episodesResult.rows as Episode[];
   const isAdmin = await checkAdminStatus();
 
   // Convert is_official from integer (0/1) to boolean

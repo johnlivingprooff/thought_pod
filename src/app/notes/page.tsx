@@ -11,9 +11,11 @@ import LatestNotes from '@/components/notes/LatestNotes';
 async function getNotes(episodeId?: string): Promise<Note[]> {
   let rawNotes: RawNote[];
   if (episodeId) {
-    rawNotes = getNotesByEpisode.all(episodeId) as RawNote[];
+    const result = await getNotesByEpisode(episodeId);
+    rawNotes = result.rows as RawNote[];
   } else {
-    rawNotes = getPublishedNotes.all() as RawNote[];
+    const result = await getPublishedNotes();
+    rawNotes = result.rows as RawNote[];
   }
 
   // Convert is_official from integer (0/1) to boolean
@@ -24,11 +26,13 @@ async function getNotes(episodeId?: string): Promise<Note[]> {
 }
 
 async function getEpisodesList(): Promise<Episode[]> {
-  return getEpisodes.all() as Episode[];
+  const result = await getEpisodes();
+  return result.rows as Episode[];
 }
 
 async function getLatestNotes(): Promise<{ editorial: Note | null; community: Note | null }> {
-  const rawNotes: RawNote[] = getPublishedNotes.all() as RawNote[];
+  const result = await getPublishedNotes();
+  const rawNotes: RawNote[] = result.rows as RawNote[];
 
   // Convert is_official from integer (0/1) to boolean
   const allNotes = rawNotes.map(note => ({

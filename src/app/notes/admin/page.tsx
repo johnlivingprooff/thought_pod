@@ -32,7 +32,8 @@ export default async function AdminPage() {
     );
   }
 
-  const notes = getAllNotes.all() as Note[];
+  const notesResult = await getAllNotes();
+  const notes = notesResult.rows as Note[];
 
   return (
     <div className="min-h-screen relative">

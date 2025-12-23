@@ -10,7 +10,8 @@ interface OfficialNotePageProps {
 }
 
 async function getNoteById(noteId: string): Promise<Note | null> {
-  const rawNotes: RawNote[] = getAllNotes.all() as RawNote[];
+  const result = await getAllNotes();
+  const rawNotes: RawNote[] = result.rows as RawNote[];
   const notes = rawNotes.map(note => ({
     ...note,
     is_official: Boolean(note.is_official)
@@ -20,7 +21,8 @@ async function getNoteById(noteId: string): Promise<Note | null> {
 }
 
 async function getEpisodesList(): Promise<Episode[]> {
-  return getEpisodes.all() as Episode[];
+  const result = await getEpisodes();
+  return result.rows as Episode[];
 }
 
 export default async function OfficialNotePage({ params }: OfficialNotePageProps) {

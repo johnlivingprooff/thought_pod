@@ -28,7 +28,7 @@ export async function addNote(formData: FormData) {
   const id = uuidv4();
 
   try {
-    insertNote.run(id, title, episode_id, author_name, author_type, content.trim(), status, is_official ? 1 : 0);
+    await insertNote(id, title, episode_id, author_name, author_type, content.trim(), status, is_official);
 
     // Send email notification for new notes
     await sendNoteNotification({
@@ -67,7 +67,7 @@ export async function addReply(formData: FormData) {
 
   try {
     console.log('Attempting to insert reply:', { id, note_id, author_name, author_type, content: content.trim() });
-    insertReply.run(id, note_id, author_name, author_type, content.trim());
+    await insertReply(id, note_id, author_name, author_type, content.trim());
     console.log('Reply inserted successfully');
     revalidatePath('/notes');
   } catch (error) {
@@ -85,7 +85,8 @@ export async function addReply(formData: FormData) {
 
 export async function getReplies(noteId: string) {
   try {
-    return getNoteReplies.all(noteId);
+    const result = await getNoteReplies(noteId);
+    return result.rows;
   } catch (error) {
     console.error('Error fetching replies:', error);
     return [];
