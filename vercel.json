@@ -6,7 +6,8 @@
   "devCommand": "npm run dev",
   "functions": {
     "src/app/api/**/*.ts": {
-      "runtime": "@vercel/node"
+      "runtime": "@vercel/node",
+      "maxDuration": 10
     }
   },
   "rewrites": [
@@ -36,6 +37,26 @@
           "value": "Content-Type, Authorization"
         }
       ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
