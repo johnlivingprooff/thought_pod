@@ -112,7 +112,7 @@ export default function NoteModal({ note, replies, isOpen, onClose, episodes }: 
                   </div>
                   <button
                     onClick={onClose}
-                    className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded transition-colors"
+                    className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -138,7 +138,7 @@ export default function NoteModal({ note, replies, isOpen, onClose, episodes }: 
                             {String(children).replace(/\n$/, '')}
                           </SyntaxHighlighter>
                         ) : (
-                          <code className="bg-black/50 px-1 py-0.5 rounded text-xs" {...props}>
+                          <code className="bg-black/50 px-1 py-0.5 rounded-lg text-xs" {...props}>
                             {children}
                           </code>
                         );

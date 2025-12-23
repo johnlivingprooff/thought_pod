@@ -34,7 +34,7 @@ export default async function CommunityGuidelinesPage() {
                         {String(children).replace(/\n$/, '')}
                       </SyntaxHighlighter>
                     ) : (
-                      <code className="bg-black/50 px-1.5 py-0.5 rounded text-sm" {...props}>
+                      <code className="bg-black/50 px-1.5 py-0.5 rounded-lg text-sm" {...props}>
                         {children}
                       </code>
                     );

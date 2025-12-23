@@ -162,7 +162,7 @@ export default function EpisodeNotesList({ notes, episodes }: EpisodeNotesListPr
                                   {String(children).replace(/\n$/, '')}
                                 </SyntaxHighlighter>
                               ) : (
-                                <code className="bg-black/50 px-1 py-0.5 rounded text-xs" {...props}>
+                                <code className="bg-black/50 px-1 py-0.5 rounded-lg text-xs" {...props}>
                                   {children}
                                 </code>
                               );

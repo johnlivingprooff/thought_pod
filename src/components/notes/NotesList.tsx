@@ -123,7 +123,7 @@ export default function NotesList({ notes, episodes }: NotesListProps) {
                             {String(children).replace(/\n$/, '')}
                           </SyntaxHighlighter>
                         ) : (
-                          <code className="bg-black/50 px-1 py-0.5 rounded text-xs" {...props}>
+                          <code className="bg-black/50 px-1 py-0.5 rounded-lg text-xs" {...props}>
                             {children}
                           </code>
                         );

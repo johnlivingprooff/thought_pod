@@ -205,7 +205,7 @@ export default function AddNoteForm({ episodes, onSuccess, narrow = false }: Add
                   type="checkbox"
                   checked={isOfficial}
                   onChange={(e) => setIsOfficial(e.target.checked)}
-                  className="w-4 h-4 bg-black/50 border border-white/20 rounded focus:ring-white/30 focus:ring-2 text-white"
+                  className="w-4 h-4 bg-black/50 border border-white/20 rounded-lg focus:ring-white/30 focus:ring-2 text-white"
                 />
                 <span className="text-sm font-medium text-white/70">Mark as Official Show Notes</span>
               </label>
@@ -222,7 +222,7 @@ export default function AddNoteForm({ episodes, onSuccess, narrow = false }: Add
                   <button
                     type="button"
                     onClick={() => insertMarkdown('**', '**')}
-                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors font-bold"
+                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors font-bold"
                     title="Bold (Ctrl+B)"
                   >
                     B
@@ -230,7 +230,7 @@ export default function AddNoteForm({ episodes, onSuccess, narrow = false }: Add
                   <button
                     type="button"
                     onClick={() => insertMarkdown('*', '*')}
-                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors italic"
+                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors italic"
                     title="Italic (Ctrl+I)"
                   >
                     I
@@ -239,7 +239,7 @@ export default function AddNoteForm({ episodes, onSuccess, narrow = false }: Add
                   <button
                     type="button"
                     onClick={() => insertMarkdown('`', '`')}
-                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors"
+                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                     title="Code"
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -249,7 +249,7 @@ export default function AddNoteForm({ episodes, onSuccess, narrow = false }: Add
                   <button
                     type="button"
                     onClick={() => insertMarkdown('[', '](url)')}
-                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors"
+                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                     title="Link (Ctrl+K)"
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -260,7 +260,7 @@ export default function AddNoteForm({ episodes, onSuccess, narrow = false }: Add
                   <button
                     type="button"
                     onClick={() => insertMarkdown('\n- ', '')}
-                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors"
+                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                     title="Bullet List"
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -271,7 +271,7 @@ export default function AddNoteForm({ episodes, onSuccess, narrow = false }: Add
                   <button
                     type="button"
                     onClick={() => insertMarkdown('\n1. ', '')}
-                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors"
+                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                     title="Numbered List"
                   >
                     <text x="2" y="6" fontSize="6" fill="currentColor" fontWeight="bold">1</text>
@@ -282,7 +282,7 @@ export default function AddNoteForm({ episodes, onSuccess, narrow = false }: Add
                   <button
                     type="button"
                     onClick={() => insertMarkdown('\n> ', '')}
-                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors"
+                    className="p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                     title="Quote"
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -340,7 +340,7 @@ export default function AddNoteForm({ episodes, onSuccess, narrow = false }: Add
                             {String(children).replace(/\n$/, '')}
                           </SyntaxHighlighter>
                         ) : (
-                          <code className="bg-black/50 px-1.5 py-0.5 rounded text-sm" {...props}>
+                          <code className="bg-black/50 px-1.5 py-0.5 rounded-lg text-sm" {...props}>
                             {children}
                           </code>
                         );
