@@ -5,18 +5,15 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import logo from '@/assets/2.png';
+import { checkAdminStatus } from '@/app/notes/actions';
 
 export default function Navigation() {
   const pathname = usePathname();
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Check for admin cookie on client side
-    const adminCookie = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('role='))
-      ?.split('=')[1];
-    setIsAdmin(adminCookie === 'admin');
+    // Check admin status using server action
+    checkAdminStatus().then(setIsAdmin).catch(() => setIsAdmin(false));
   }, []);
 
   // Don't show navigation on the main page

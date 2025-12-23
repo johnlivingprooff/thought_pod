@@ -90,3 +90,14 @@ export async function getReplies(noteId: string) {
     return [];
   }
 }
+
+export async function checkAdminStatus() {
+  try {
+    const cookieStore = await cookies();
+    const adminCookie = cookieStore.get('role')?.value;
+    return adminCookie === 'admin';
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
+}

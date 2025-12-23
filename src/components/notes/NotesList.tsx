@@ -58,10 +58,6 @@ export default function NotesList({ notes, episodes }: NotesListProps) {
         {notes.map((note, index) => {
           // Deterministic rotation based on note ID to avoid hydration mismatch
           const rotation = ((note.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 20) - 10) * 0.1; // -1 to 1 degrees
-          
-          // Create varying heights for Pinterest-style layout
-          const heightVariations = ['row-span-1', 'row-span-2', 'row-span-3'];
-          const heightClass = heightVariations[Math.abs(note.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)) % heightVariations.length];
 
           return (
             <motion.div
@@ -69,11 +65,11 @@ export default function NotesList({ notes, episodes }: NotesListProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05, duration: 0.5 }}
-              className={`relative ${heightClass}`}
+              className="relative"
             >
               <div
                 onClick={() => handleNoteClick(note)}
-                className="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/20 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:rotate-0 cursor-pointer h-full flex flex-col"
+                className="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/20 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:rotate-0 cursor-pointer flex flex-col"
                 style={{
                   transform: `rotate(${rotation}deg)`,
                   transition: 'transform 0.3s ease-out, scale 0.3s ease-out'
@@ -107,7 +103,7 @@ export default function NotesList({ notes, episodes }: NotesListProps) {
                   </h3>
                 )}
 
-                <div className="prose prose-invert prose-xs max-w-none mb-3 flex-1">
+                <div className="prose prose-invert prose-xs max-w-none mb-3">
                   <ReactMarkdown
                     components={{
                       code({ className, children, ...props }) {
@@ -169,7 +165,7 @@ export default function NotesList({ notes, episodes }: NotesListProps) {
                 </div>
 
                 {note.episode_id && (
-                  <div className="pt-2 border-t border-white/10 mt-auto">
+                  <div className="pt-2 border-t border-white/10">
                     <span className="inline-block bg-white/20 text-white/80 text-xs px-2 py-1 rounded-full truncate max-w-full">
                       {getEpisodeTitle(note.episode_id)}
                     </span>
