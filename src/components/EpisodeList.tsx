@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import Link from 'next/link';
 import { Thought } from '@/types';
 import { useAudioStore } from '@/lib/audioStore';
 import { useBookmarks } from '@/lib/useBookmarks';
@@ -58,7 +59,7 @@ function getThemeColor(theme: Thought['theme']): string {
 export default function EpisodeList({ episodes, selectedTheme, showBookmarked = false }: EpisodeListProps) {
   const { currentEpisode, isPlaying, playEpisode, togglePlayPause } = useAudioStore();
   const [hoveredEpisode, setHoveredEpisode] = useState<string | null>(null);
-  const { toggleBookmark, isBookmarked } = useBookmarks();
+  const { isBookmarked } = useBookmarks();
 
   // Filter episodes by theme and bookmarked status
   let filteredEpisodes = episodes;
@@ -77,11 +78,6 @@ export default function EpisodeList({ episodes, selectedTheme, showBookmarked = 
     } else {
       playEpisode(episode);
     }
-  };
-
-  const handleBookmarkClick = (e: React.MouseEvent, episodeId: string) => {
-    e.stopPropagation(); // Prevent episode click
-    toggleBookmark(episodeId);
   };
 
   return (
@@ -265,24 +261,17 @@ export default function EpisodeList({ episodes, selectedTheme, showBookmarked = 
 
                     {/* Action Buttons: below description on mobile, right on desktop */}
                     <div className="flex gap-4 mt-2 order-3 md:order-none md:mt-0 md:ml-6">
-                      {/* Bookmark Button */}
-                      <motion.button
-                        onClick={(e) => handleBookmarkClick(e, episode.id)}
+                      {/* Notes Button */}
+                      <Link
+                        href={`/notes/episode/${episode.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`}
                         className="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 border border-white/20 hover:bg-white/20 transition-all duration-300"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        aria-label={isBookmarked(episode.id) ? 'Remove bookmark' : 'Add bookmark'}
+                        aria-label="View episode notes"
                       >
-                        {isBookmarked(episode.id) ? (
-                          <svg className="w-6 h-6" fill={getThemeColor(episode.theme)} viewBox="0 0 24 24">
-                            <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
-                          </svg>
-                        ) : (
-                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z" />
-                          </svg>
-                        )}
-                      </motion.button>
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                      </Link>
 
                       {/* Enhanced Play Button */}
                       <motion.button

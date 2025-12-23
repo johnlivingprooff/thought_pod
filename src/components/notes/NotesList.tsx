@@ -6,6 +6,7 @@ import { Note, Episode, NoteReply } from '@/types';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import NoteModal from './NoteModal';
+import { truncateNoteContent } from '@/lib/noteUtils';
 
 interface NotesListProps {
   notes: Note[];
@@ -69,7 +70,11 @@ export default function NotesList({ notes, episodes }: NotesListProps) {
             >
               <div
                 onClick={() => handleNoteClick(note)}
-                className="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/20 shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:rotate-0 cursor-pointer flex flex-col"
+                className={`backdrop-blur-md rounded-lg p-6 border shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:rotate-0 cursor-pointer flex flex-col ${
+                  note.is_official
+                    ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-400/50 shadow-amber-500/20'
+                    : 'bg-white/10 border-white/20'
+                }`}
                 style={{
                   transform: `rotate(${rotation}deg)`,
                   transition: 'transform 0.3s ease-out, scale 0.3s ease-out'
@@ -160,8 +165,15 @@ export default function NotesList({ notes, episodes }: NotesListProps) {
                       ),
                     }}
                   >
-                    {note.content}
+                    {truncateNoteContent(note.content)}
                   </ReactMarkdown>
+                  {note.is_official && (
+                    <div className="mt-3 pt-2 border-t border-amber-400/20">
+                      <div className="inline-block px-3 py-1 bg-amber-500/20 border border-amber-400/50 rounded-full">
+                        <span className="text-xs font-medium text-amber-300">Show Notes</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {note.episode_id && (

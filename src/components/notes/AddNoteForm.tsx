@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Episode } from '@/types';
 import { addNote } from '@/app/notes/actions';
@@ -10,21 +10,41 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 interface AddNoteFormProps {
   episodes: Episode[];
   onSuccess?: () => void;
+  narrow?: boolean;
 }
 
-export default function AddNoteForm({ episodes, onSuccess }: AddNoteFormProps) {
+export default function AddNoteForm({ episodes, onSuccess, narrow = false }: AddNoteFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [content, setContent] = useState('');
   const [isPreview, setIsPreview] = useState(false);
   const [selectedEpisodeId, setSelectedEpisodeId] = useState<string>('');
+  const [isOfficial, setIsOfficial] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    // Check if user is admin by looking at cookies
+    const checkAdminStatus = async () => {
+      try {
+        const response = await fetch('/api/admin/check');
+        const data = await response.json();
+        setIsAdmin(data.isAdmin);
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+      }
+    };
+    checkAdminStatus();
+  }, []);
 
   async function handleSubmit(formData: FormData) {
     // Add the selected episode to the form data
     if (selectedEpisodeId) {
       formData.set('episode_id', selectedEpisodeId);
     }
+
+    // Add the is_official field
+    formData.set('is_official', isOfficial.toString());
 
     setIsSubmitting(true);
     try {
@@ -34,6 +54,7 @@ export default function AddNoteForm({ episodes, onSuccess }: AddNoteFormProps) {
       setContent('');
       setIsPreview(false);
       setSelectedEpisodeId('');
+      setIsOfficial(false);
       onSuccess?.(); // Call the success callback
     } catch (error) {
       console.error('Error adding note:', error);
@@ -99,7 +120,7 @@ export default function AddNoteForm({ episodes, onSuccess }: AddNoteFormProps) {
   };
 
   return (
-    <div className="bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden">
+    <div className={`bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 overflow-hidden ${narrow ? 'max-w-2xl mx-auto' : ''}`}>
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-white/90">Add a Note</h2>
@@ -173,6 +194,22 @@ export default function AddNoteForm({ episodes, onSuccess }: AddNoteFormProps) {
                 placeholder="Your name or handle"
                 className="w-full px-3 py-2 bg-black/50 border border-white/20 rounded-md text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 text-sm"
               />
+            </div>
+          )}
+
+          {/* Official Show Notes checkbox - only show for admins when expanded */}
+          {isExpanded && isAdmin && (
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isOfficial}
+                  onChange={(e) => setIsOfficial(e.target.checked)}
+                  className="w-4 h-4 bg-black/50 border border-white/20 rounded focus:ring-white/30 focus:ring-2 text-white"
+                />
+                <span className="text-sm font-medium text-white/70">Mark as Official Show Notes</span>
+              </label>
+              <p className="text-xs text-white/50">Official show notes will be highlighted and appear at the top of episode notes</p>
             </div>
           )}
 

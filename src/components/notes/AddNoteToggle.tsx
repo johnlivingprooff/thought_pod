@@ -6,9 +6,10 @@ import AddNoteForm from './AddNoteForm';
 
 interface AddNoteToggleProps {
   episodes: Episode[];
+  narrow?: boolean;
 }
 
-export default function AddNoteToggle({ episodes }: AddNoteToggleProps) {
+export default function AddNoteToggle({ episodes, narrow = false }: AddNoteToggleProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (isExpanded) {
@@ -25,7 +26,7 @@ export default function AddNoteToggle({ episodes }: AddNoteToggleProps) {
             Cancel
           </button>
         </div>
-        <AddNoteForm episodes={episodes} onSuccess={() => setIsExpanded(false)} />
+        <AddNoteForm episodes={episodes} onSuccess={() => setIsExpanded(false)} narrow={narrow} />
       </div>
     );
   }

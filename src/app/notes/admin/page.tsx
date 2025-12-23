@@ -6,6 +6,9 @@ import Starfield from '@/components/Starfield';
 import AdminLogin from '@/components/notes/AdminLogin';
 import AdminNotesList from '@/components/notes/AdminNotesList';
 
+// Force dynamic rendering since we need to check cookies for admin authentication
+export const dynamic = 'force-dynamic';
+
 async function checkAdminAuth() {
   const cookieStore = await cookies();
   const adminCookie = cookieStore.get('role')?.value;

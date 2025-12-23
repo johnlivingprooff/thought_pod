@@ -18,6 +18,7 @@ db.exec(`
     author_type TEXT CHECK(author_type IN ('admin','community')) NOT NULL,
     content TEXT NOT NULL,
     status TEXT CHECK(status IN ('published','pending','flagged')) NOT NULL,
+    is_official BOOLEAN DEFAULT FALSE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
@@ -42,8 +43,8 @@ db.exec(`
 
 // Prepared statements
 export const insertNote = db.prepare(`
-  INSERT INTO notes (id, title, episode_id, author_name, author_type, content, status)
-  VALUES (?, ?, ?, ?, ?, ?, ?)
+  INSERT INTO notes (id, title, episode_id, author_name, author_type, content, status, is_official)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 `);
 
 export const insertReply = db.prepare(`
@@ -88,48 +89,5 @@ export const insertEpisode = db.prepare(`
   VALUES (?, ?, ?, ?)
   ON CONFLICT(id) DO NOTHING
 `);
-
-// Function to seed episodes from RSS (can be called asynchronously)
-export async function seedEpisodesFromRSS() {
-  try {
-    console.log('Starting RSS episode seeding...');
-
-    const { getEpisodesFromRSS } = await import('./rssParser');
-    const rssEpisodes = await getEpisodesFromRSS();
-
-    console.log(`Fetched ${rssEpisodes.length} episodes from RSS feed`);
-
-    if (rssEpisodes.length > 0) {
-      const existingCount = db.prepare('SELECT COUNT(*) as count FROM episodes').get() as { count: number };
-      console.log(`Existing episodes count: ${existingCount.count}`);
-
-      for (const episode of rssEpisodes) {
-        try {
-          insertEpisode.run(episode.id, episode.title, episode.slug, episode.published_at);
-          console.log(`Inserted episode: ${episode.title}`);
-        } catch (error) {
-          console.log(`Failed to insert episode ${episode.id}:`, error);
-        }
-      }
-
-      const newCount = db.prepare('SELECT COUNT(*) as count FROM episodes').get() as { count: number };
-      console.log(`Seeded ${newCount.count - existingCount.count} new episodes from RSS feed`);
-    } else {
-      console.log('No episodes to seed from RSS feed');
-    }
-  } catch (error) {
-    console.error('Error seeding episodes from RSS:', error);
-  }
-}
-
-// Seed initial episodes if table is empty
-const episodeCount = db.prepare('SELECT COUNT(*) as count FROM episodes').get() as { count: number };
-if (episodeCount.count === 0) {
-  // Only seed episodes from RSS - no fallbacks for truthfulness
-  // If RSS fails, the episodes table remains empty
-  seedEpisodesFromRSS().catch((error) => {
-    console.error('Failed to seed episodes from RSS - no episodes will be available:', error);
-  });
-}
 
 export default db;

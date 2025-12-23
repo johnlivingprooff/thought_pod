@@ -46,10 +46,18 @@ export default function Navigation() {
             <Link
               href="/notes"
               className={`text-sm font-medium transition-colors ${
-                pathname.startsWith('/notes') ? 'text-white' : 'text-white/70 hover:text-white'
+                pathname.startsWith('/notes') && !pathname.startsWith('/notes/episodes') ? 'text-white' : 'text-white/70 hover:text-white'
               }`}
             >
               Community Notes
+            </Link>
+            <Link
+              href="/notes/episodes"
+              className={`text-sm font-medium transition-colors ${
+                pathname.startsWith('/notes/episodes') ? 'text-white' : 'text-white/70 hover:text-white'
+              }`}
+            >
+              Episode Notes
             </Link>
             {isAdmin && (
               <form action="/notes/admin/logout" method="POST" className="inline">

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getNotesByEpisode, getEpisodes } from '@/lib/db';
-import { Note, Episode } from '@/types';
+import { Note, Episode, RawNote } from '@/types';
 import Starfield from '@/components/Starfield';
 import NotesList from '@/components/notes/NotesList';
 import AddNoteForm from '@/components/notes/AddNoteForm';
@@ -21,8 +21,14 @@ export default async function EpisodeNotesPage({ params }: EpisodePageProps) {
     notFound();
   }
 
-  const notes = getNotesByEpisode.all(episode.id) as Note[];
+  const rawNotes: RawNote[] = getNotesByEpisode.all(episode.id) as RawNote[];
   const episodes = getEpisodes.all() as Episode[];
+
+  // Convert is_official from integer (0/1) to boolean
+  const notes = rawNotes.map(note => ({
+    ...note,
+    is_official: Boolean(note.is_official)
+  })) as Note[];
 
   return (
     <div className="min-h-screen relative">

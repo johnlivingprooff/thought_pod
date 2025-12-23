@@ -11,6 +11,7 @@ export async function addNote(formData: FormData) {
   const episode_id = formData.get('episode_id') as string || null;
   const author_name = formData.get('author_name') as string || null;
   const content = formData.get('content') as string;
+  const is_official = formData.get('is_official') === 'true';
 
   if (!content || content.trim().length === 0) {
     throw new Error('Content is required');
@@ -27,7 +28,7 @@ export async function addNote(formData: FormData) {
   const id = uuidv4();
 
   try {
-    insertNote.run(id, title, episode_id, author_name, author_type, content.trim(), status);
+    insertNote.run(id, title, episode_id, author_name, author_type, content.trim(), status, is_official ? 1 : 0);
 
     // Send email notification for new notes
     await sendNoteNotification({

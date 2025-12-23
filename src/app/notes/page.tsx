@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
-import { getPublishedNotes, getNotesByEpisode, getEpisodes, seedEpisodesFromRSS } from '@/lib/db';
-import { Note, Episode } from '@/types';
+import { getPublishedNotes, getNotesByEpisode, getEpisodes } from '@/lib/db';
+import { Note, Episode, RawNote } from '@/types';
 import Starfield from '@/components/Starfield';
 import NotesList from '@/components/notes/NotesList';
 import AddNoteForm from '@/components/notes/AddNoteForm';
@@ -9,20 +9,32 @@ import EpisodeFilter from '@/components/notes/EpisodeFilter';
 import LatestNotes from '@/components/notes/LatestNotes';
 
 async function getNotes(episodeId?: string): Promise<Note[]> {
+  let rawNotes: RawNote[];
   if (episodeId) {
-    return getNotesByEpisode.all(episodeId) as Note[];
+    rawNotes = getNotesByEpisode.all(episodeId) as RawNote[];
+  } else {
+    rawNotes = getPublishedNotes.all() as RawNote[];
   }
-  return getPublishedNotes.all() as Note[];
+
+  // Convert is_official from integer (0/1) to boolean
+  return rawNotes.map(note => ({
+    ...note,
+    is_official: Boolean(note.is_official)
+  })) as Note[];
 }
 
 async function getEpisodesList(): Promise<Episode[]> {
-  // Seed episodes from RSS if not already done
-  await seedEpisodesFromRSS();
   return getEpisodes.all() as Episode[];
 }
 
 async function getLatestNotes(): Promise<{ editorial: Note | null; community: Note | null }> {
-  const allNotes = getPublishedNotes.all() as Note[];
+  const rawNotes: RawNote[] = getPublishedNotes.all() as RawNote[];
+
+  // Convert is_official from integer (0/1) to boolean
+  const allNotes = rawNotes.map(note => ({
+    ...note,
+    is_official: Boolean(note.is_official)
+  })) as Note[];
 
   const editorial = allNotes.find(note => note.author_type === 'admin') || null;
   const community = allNotes.find(note => note.author_type === 'community') || null;
