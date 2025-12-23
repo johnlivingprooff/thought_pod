@@ -40,10 +40,33 @@ async function getLatestNotes(): Promise<{ editorial: Note | null; community: No
     is_official: Boolean(note.is_official)
   })) as Note[];
 
+  // Find the latest notes and truncate content to first line
+  const truncateToFirstLine = (content: string): string => {
+    const lines = content.split('\n');
+    const firstLine = lines[0].trim();
+    // If the first line is very short or the content is short, show more
+    if (firstLine.length < 100 && content.length < 200) {
+      return content;
+    }
+    // Otherwise, truncate to first line with ellipsis
+    return firstLine.length > 100 ? firstLine.substring(0, 100) + '...' : firstLine + '...';
+  };
+
   const editorial = allNotes.find(note => note.author_type === 'admin') || null;
   const community = allNotes.find(note => note.author_type === 'community') || null;
 
-  return { editorial, community };
+  // Truncate content for preview
+  const truncatedEditorial = editorial ? {
+    ...editorial,
+    content: truncateToFirstLine(editorial.content)
+  } : null;
+
+  const truncatedCommunity = community ? {
+    ...community,
+    content: truncateToFirstLine(community.content)
+  } : null;
+
+  return { editorial: truncatedEditorial, community: truncatedCommunity };
 }
 
 interface NotesPageProps {

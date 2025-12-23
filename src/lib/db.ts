@@ -103,15 +103,24 @@ async function initializeDatabase() {
   }
 }
 
-// Initialize database on module load
+// Initialize database on module load (only in runtime, not during build)
 async function initializeApp() {
+  // Skip initialization during build time or when explicitly disabled
+  if (process.env.SKIP_DB_INIT === 'true' || process.env.NODE_ENV === 'production') {
+    console.log('Skipping database initialization');
+    return;
+  }
+  
   const connected = await testConnection();
   if (connected) {
     await initializeDatabase();
   }
 }
 
-initializeApp();
+// Only initialize if not in build environment
+if (typeof window === 'undefined' && !process.env.NEXT_PHASE) {
+  initializeApp();
+}
 
 // Helper function to execute queries
 async function executeQuery(query: string, params: unknown[] = []): Promise<QueryResult> {
