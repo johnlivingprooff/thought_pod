@@ -103,17 +103,98 @@ async function initializeDatabase() {
   }
 }
 
+// Check if tables exist and create them if they don't
+async function ensureTablesExist() {
+  try {
+    console.log('Checking database tables...');
+
+    // Check if notes table exists
+    const notesExists = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables
+        WHERE table_name = 'notes'
+      )
+    `);
+
+    if (!notesExists.rows[0].exists) {
+      console.log('Creating notes table...');
+      await pool.query(`
+        CREATE TABLE notes (
+          id TEXT PRIMARY KEY,
+          title TEXT,
+          episode_id TEXT,
+          author_name TEXT,
+          author_type TEXT CHECK(author_type IN ('admin','community')) NOT NULL,
+          content TEXT NOT NULL,
+          status TEXT CHECK(status IN ('published','pending','flagged')) NOT NULL,
+          is_official BOOLEAN DEFAULT FALSE,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+    }
+
+    // Check if note_replies table exists
+    const repliesExists = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables
+        WHERE table_name = 'note_replies'
+      )
+    `);
+
+    if (!repliesExists.rows[0].exists) {
+      console.log('Creating note_replies table...');
+      await pool.query(`
+        CREATE TABLE note_replies (
+          id TEXT PRIMARY KEY,
+          note_id TEXT NOT NULL,
+          author_name TEXT,
+          author_type TEXT CHECK(author_type IN ('admin','community')) NOT NULL,
+          content TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE
+        )
+      `);
+    }
+
+    // Check if episodes table exists
+    const episodesExists = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables
+        WHERE table_name = 'episodes'
+      )
+    `);
+
+    if (!episodesExists.rows[0].exists) {
+      console.log('Creating episodes table...');
+      await pool.query(`
+        CREATE TABLE episodes (
+          id TEXT PRIMARY KEY,
+          title TEXT NOT NULL,
+          slug TEXT UNIQUE NOT NULL,
+          published_at TIMESTAMP,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+    }
+
+    console.log('Database tables verified/created successfully');
+  } catch (error) {
+    console.error('Error ensuring tables exist:', error);
+    // Don't throw here - let the app continue
+  }
+}
+
 // Initialize database on module load (only in runtime, not during build)
 async function initializeApp() {
-  // Skip initialization during build time or when explicitly disabled
-  if (process.env.SKIP_DB_INIT === 'true' || process.env.NODE_ENV === 'production') {
-    console.log('Skipping database initialization');
-    return;
-  }
-  
   const connected = await testConnection();
   if (connected) {
-    await initializeDatabase();
+    // In production, just ensure tables exist
+    if (process.env.NODE_ENV === 'production') {
+      await ensureTablesExist();
+    } else if (process.env.SKIP_DB_INIT !== 'true') {
+      // In development, do full initialization
+      await initializeDatabase();
+    }
   }
 }
 
