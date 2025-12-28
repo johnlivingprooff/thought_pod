@@ -25,7 +25,7 @@ export default function Navigation() {
   }, [pathname]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/10 backdrop-blur-sm border-b border-white/5">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <Link
@@ -117,7 +117,27 @@ export default function Navigation() {
 
             {/* Full-screen Menu */}
             <div className="md:hidden fixed inset-0 z-50 flex items-center justify-center">
-              <div className="w-full max-w-sm mx-6 bg-black/90 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="w-full max-w-sm mx-6 bg-black/90 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
+                {/* Close Button */}
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="absolute top-4 right-4 p-2 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-colors z-10"
+                  aria-label="Close mobile menu"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
                 <div className="px-6 py-8 space-y-2">
                   <Link
                     href="/"
