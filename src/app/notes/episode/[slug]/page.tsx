@@ -4,6 +4,8 @@ import { Note, Episode, RawNote } from '@/types';
 import Starfield from '@/components/Starfield';
 import NotesList from '@/components/notes/NotesList';
 import AddNoteForm from '@/components/notes/AddNoteForm';
+import OfficialNoteView from '@/components/notes/OfficialNoteView';
+import { getEpisodeNotes } from '@/lib/episodeNotes';
 
 interface EpisodePageProps {
   params: { slug: string };
@@ -32,6 +34,22 @@ export default async function EpisodeNotesPage({ params }: EpisodePageProps) {
     ...note,
     is_official: Boolean(note.is_official)
   })) as Note[];
+
+  // Get official episode notes from markdown files
+  const officialNotesContent = await getEpisodeNotes(params.slug);
+
+  // Create an official note object if content exists
+  const officialNote: Note | null = officialNotesContent ? {
+    id: `official-${params.slug}`,
+    title: 'Show Notes',
+    episode_id: episode.id,
+    author_name: 'Thought Podcast',
+    author_type: 'admin',
+    content: officialNotesContent,
+    status: 'published',
+    is_official: true,
+    created_at: episode.published_at || episode.created_at
+  } : null;
 
   return (
     <div className="min-h-screen relative">
@@ -62,6 +80,15 @@ export default async function EpisodeNotesPage({ params }: EpisodePageProps) {
             <AddNoteForm episodes={episodes} />
           </div>
         </div>
+
+        {/* Official Episode Notes */}
+        {officialNote && (
+          <div className="pb-16 px-6">
+            <div className="max-w-4xl mx-auto">
+              <OfficialNoteView note={officialNote} replies={[]} episodes={episodes} />
+            </div>
+          </div>
+        )}
 
         {/* Notes Feed */}
         <div className="pb-16 px-6">

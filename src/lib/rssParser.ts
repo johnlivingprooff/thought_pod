@@ -103,3 +103,42 @@ export async function getEpisodesFromRSS(): Promise<{ id: string; title: string;
     return [];
   }
 }
+
+export async function syncEpisodesToDatabase(): Promise<{ synced: number; skipped: number; errors: number }> {
+  try {
+    console.log('Syncing episodes from RSS to database...');
+    const rssEpisodes = await getEpisodesFromRSS();
+    const { insertEpisode, getEpisodes } = await import('./db');
+
+    let synced = 0;
+    let skipped = 0;
+    let errors = 0;
+
+    // Get existing episodes to avoid duplicates
+    const existingResult = await getEpisodes();
+    const existingIds = new Set((existingResult.rows as { id: string }[]).map(ep => ep.id));
+
+    for (const episode of rssEpisodes) {
+      try {
+        if (existingIds.has(episode.id)) {
+          console.log(`⏭️  Episode already exists: ${episode.title}`);
+          skipped++;
+          continue;
+        }
+
+        await insertEpisode(episode.id, episode.title, episode.slug, episode.published_at);
+        console.log(`✅ Synced episode: ${episode.title} (${episode.slug})`);
+        synced++;
+      } catch (error) {
+        console.error(`❌ Error syncing episode ${episode.title}:`, error);
+        errors++;
+      }
+    }
+
+    console.log(`Episode sync completed: ${synced} synced, ${skipped} skipped, ${errors} errors`);
+    return { synced, skipped, errors };
+  } catch (error) {
+    console.error('Error syncing episodes to database:', error);
+    throw error;
+  }
+}

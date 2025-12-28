@@ -42,14 +42,22 @@ export default async function AdminPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-4xl font-bold text-white">Admin Dashboard</h1>
-            <form action="/notes/admin/logout" method="POST">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium"
+            <div className="flex gap-4">
+              <a
+                href="/admin/sync-episodes"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
               >
-                Logout
-              </button>
-            </form>
+                Sync Episodes
+              </a>
+              <form action="/notes/admin/logout" method="POST">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium"
+                >
+                  Logout
+                </button>
+              </form>
+            </div>
           </div>
 
           <Suspense fallback={<div className="text-white/50 text-center py-12">Loading notes...</div>}>

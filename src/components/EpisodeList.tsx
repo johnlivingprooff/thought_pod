@@ -150,13 +150,17 @@ export default function EpisodeList({
                       className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition"
                       aria-label="Episode notes"
                     >
-                      📝
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M8 8H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M8 12H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                     </Link>
 
                     <motion.button
                       whileTap={{ scale: 0.95 }}
                       className={`
-                        w-14 h-14 sm:w-16 sm:h-16 rounded-full
+                        w-10 h-10 sm:w-16 sm:h-16 rounded-full
                         border-2 flex items-center justify-center
                         ${active
                           ? 'bg-white/20 border-white/40'
@@ -165,12 +169,14 @@ export default function EpisodeList({
                       aria-label={playing ? 'Pause' : 'Play'}
                     >
                       {playing ? (
-                        <div className="flex gap-1">
-                          <span className="w-1.5 h-6 bg-white" />
-                          <span className="w-1.5 h-6 bg-white" />
-                        </div>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path fillRule="evenodd" clipRule="evenodd" d="M20 5L20 19C20 20.6569 18.6569 22 17 22L16 22C14.3431 22 13 20.6569 13 19L13 5C13 3.34314 14.3431 2 16 2L17 2C18.6569 2 20 3.34315 20 5Z" fill="currentColor"/>
+                          <path fillRule="evenodd" clipRule="evenodd" d="M8 2C9.65685 2 11 3.34315 11 5L11 19C11 20.6569 9.65685 22 8 22L7 22C5.34315 22 4 20.6569 4 19L4 5C4 3.34314 5.34315 2 7 2L8 2Z" fill="currentColor"/>
+                        </svg>
                       ) : (
-                        <span className="ml-1 text-white text-xl">▶</span>
+                        <svg width="16" height="16" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+                          <path fill="currentColor" d="M106.854 106.002a26.003 26.003 0 0 0-25.64 29.326c16 124 16 117.344 0 241.344a26.003 26.003 0 0 0 35.776 27.332l298-124a26.003 26.003 0 0 0 0-48.008l-298-124a26.003 26.003 0 0 0-10.136-1.994z"/>
+                        </svg>
                       )}
                     </motion.button>
                   </div>

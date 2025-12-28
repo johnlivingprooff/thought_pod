@@ -7,7 +7,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "db:setup": "node scripts/setup-db.js"
+    "db:setup": "node scripts/setup-db.js",
+    "db:sync-episodes": "node scripts/sync-episodes.js"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.6",
