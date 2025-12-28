@@ -7,29 +7,30 @@ import BackgroundAmbientAudio from '@/components/BackgroundAmbientAudio';
 import FourCs from '@/components/FourCs';
 import EpisodeList from '@/components/EpisodeList';
 import ThoughtPlayer from '@/components/ThoughtPlayer';
+import Navigation from '@/components/Navigation';
 import { Thought } from '@/types';
 import { useAudioStore } from '@/lib/audioStore';
 
 export default function Home() {
   const [episodes, setEpisodes] = useState<Thought[]>([]);
   const [selectedTheme, setSelectedTheme] = useState<Thought['theme'] | null>(null);
-  const { playEpisode } = useAudioStore();
 
+  // Fetch episodes on component mount
   useEffect(() => {
-    // Fetch episodes from API
-    fetch('/api/episodes')
-      .then(res => res.json())
-      .then(data => setEpisodes(data))
-      .catch(err => console.error('Error fetching episodes:', err));
-  }, []);
+    const fetchEpisodes = async () => {
+      try {
+        const response = await fetch('/api/episodes');
+        if (response.ok) {
+          const data = await response.json();
+          setEpisodes(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch episodes:', error);
+      }
+    };
 
-  const handlePlayLatest = () => {
-    if (episodes.length > 0) {
-      playEpisode(episodes[0]);
-      // Smooth scroll to episodes section
-      document.getElementById('episodes')?.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+    fetchEpisodes();
+  }, []);
 
   const handleThemeSelect = (theme: Thought['theme'] | null) => {
     setSelectedTheme(theme);
@@ -51,13 +52,12 @@ export default function Home() {
   };
 
   return (
-  <div className="min-h-screen relative flex flex-col gap-16 pt-8 pb-16">
+    <div className="min-h-screen relative flex flex-col gap-16 pt-8 pb-16">
+      <Navigation />
       <Starfield themeColor={getThemeColor(selectedTheme)} />
       <BackgroundAmbientAudio />
       
-      <Landing 
-        onPlayLatest={handlePlayLatest} 
-      />
+      <Landing />
 
 
 

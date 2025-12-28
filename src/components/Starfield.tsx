@@ -16,33 +16,33 @@ interface ShootingStarProps {
 }
 
 function ShootingStar({ start, end, duration, color, onFinished }: ShootingStarProps) {
-  const ref = useRef(null);
   const [progress, setProgress] = useState(0);
+
   useEffect(() => {
-    let frame: number;
     const startTime = performance.now();
+    let frame: number;
+
     const animate = (now: number) => {
-      const elapsed = now - startTime;
-      const nextProgress = Math.min(elapsed / duration, 1);
-      setProgress(nextProgress);
-      if (nextProgress < 1) {
-        frame = requestAnimationFrame(animate);
-      } else {
-        onFinished();
-      }
+      const t = Math.min((now - startTime) / duration, 1);
+      const eased = t * t; // acceleration
+      setProgress(eased);
+
+      if (t < 1) frame = requestAnimationFrame(animate);
+      else onFinished();
     };
+
     frame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frame);
   }, [duration, onFinished]);
-  // Interpolate position
+
   const current: [number, number, number] = [
     start[0] + (end[0] - start[0]) * progress,
-    start[1] + (end[1] - start[1]) * progress,
-    start[2] + (end[2] - start[2]) * progress,
+    start[1] + (end[1] - start[1]) * progress - progress * 0.6, // subtle curve
+    start[2],
   ];
+
   return (
     <Line
-      ref={ref}
       points={[start, current]}
       color={color}
       lineWidth={2}
@@ -51,6 +51,7 @@ function ShootingStar({ start, end, duration, color, onFinished }: ShootingStarP
     />
   );
 }
+
 import * as THREE from 'three';
 
 interface StarsProps {
@@ -61,69 +62,63 @@ interface StarsProps {
 
 function Stars({ mousePosition, scrollY, themeColor }: StarsProps) {
   const ref = useRef<THREE.Points>(null);
-  
-  // Generate random star positions with depth layers
+
   const particles = useMemo(() => {
-    const count = 1200; // Lowered for performance
+    const count = 1200;
     const positions = new Float32Array(count * 3);
-    const colors = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+    const depths = new Float32Array(count);
+
     for (let i = 0; i < count; i++) {
       const i3 = i * 3;
-      // Create stars in a larger sphere with depth layers
-      const depth = Math.random();
-      const radius = (Math.random() * 25 + 5) * (0.5 + depth * 0.5);
+
+      const radius = Math.random() * 40 + 10;
       const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(Math.random() * 2 - 1);
-      positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+      const phi = Math.acos(2 * Math.random() - 1);
+
+      const depth = Math.random(); // 0 = far, 1 = near
+      depths[i] = depth;
+
+      positions[i3]     = radius * Math.sin(phi) * Math.cos(theta);
       positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
       positions[i3 + 2] = radius * Math.cos(phi);
-      // Add subtle color variation
-      colors[i3] = 1;
-      colors[i3 + 1] = 1;
-      colors[i3 + 2] = 1;
+
+      sizes[i] = 0.02 + depth * 0.06; // near stars slightly larger
     }
-    return { positions, colors };
+
+    return { positions, sizes, depths };
   }, []);
 
-  // Animate stars with parallax based on mouse and scroll
-  useFrame((state, delta) => {
-    if (ref.current) {
-      // Smoother base rotation
-      ref.current.rotation.x -= delta / 18;
-      ref.current.rotation.y -= delta / 22;
-      // Smoother parallax effect from mouse
-      const targetRotationX = mousePosition.y * 0.0005;
-      const targetRotationY = mousePosition.x * 0.0005;
-      ref.current.rotation.x += (targetRotationX - ref.current.rotation.x) * 0.025;
-      ref.current.rotation.y += (targetRotationY - ref.current.rotation.y) * 0.025;
-      // Subtle movement based on scroll
-      ref.current.position.z = Math.sin(scrollY * 0.001) * 0.5;
-    }
+  useFrame((_, delta) => {
+    if (!ref.current) return;
+
+    // Very subtle drift — not rotation
+    ref.current.rotation.y += delta * 0.005;
+
+    // Parallax from mouse
+    const parallaxX = mousePosition.y * 0.00015;
+    const parallaxY = mousePosition.x * 0.00015;
+
+    ref.current.rotation.x += (parallaxX - ref.current.rotation.x) * 0.03;
+    ref.current.rotation.y += (parallaxY - ref.current.rotation.y) * 0.03;
+
+    // Gentle depth breathing on scroll
+    ref.current.position.z = -scrollY * 0.0003;
   });
 
-  // Parse theme color for subtle tinting
-  const starColor = themeColor || '#ffffff';
-  // Twinkle effect: animate opacity
-  const [twinkle, setTwinkle] = useState(0.8);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTwinkle(0.7 + Math.random() * 0.3);
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
   return (
     <Points ref={ref} positions={particles.positions} stride={3} frustumCulled={false}>
       <PointMaterial
         transparent
-        color={starColor}
-        size={0.05}
-        sizeAttenuation={true}
+        color={themeColor || '#ffffff'}
+        size={0.04}
+        sizeAttenuation
         depthWrite={false}
-        opacity={twinkle}
       />
     </Points>
   );
 }
+
 
 interface StarfieldProps {
   themeColor?: string;

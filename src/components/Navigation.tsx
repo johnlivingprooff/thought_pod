@@ -12,14 +12,16 @@ export default function Navigation() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Check admin status using server action
-    checkAdminStatus().then(setIsAdmin).catch(() => setIsAdmin(false));
-  }, []);
+    // Only check admin status on notes pages
+    if (pathname.startsWith('/notes')) {
+      checkAdminStatus().then(setIsAdmin).catch(() => setIsAdmin(false));
+    }
+  }, [pathname]);
 
-  // Don't show navigation on the main page
-  if (pathname === '/') {
-    return null;
-  }
+  // Show navigation on all pages including home
+  // if (pathname === '/') {
+  //   return null;
+  // }
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50">
