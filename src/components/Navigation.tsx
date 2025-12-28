@@ -106,46 +106,59 @@ export default function Navigation() {
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
-          <div className="md:hidden mt-4 bg-black/90 backdrop-blur-sm border border-white/10 rounded-lg overflow-hidden">
-            <div className="px-4 py-2 space-y-1">
-              <Link
-                href="/"
-                className={`block px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                  pathname === '/' ? 'text-white bg-white/10' : 'text-white/70 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Home
-              </Link>
-              <Link
-                href="/notes"
-                className={`block px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                  pathname.startsWith('/notes') && !pathname.startsWith('/notes/episodes') ? 'text-white bg-white/10' : 'text-white/70 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Community Notes
-              </Link>
-              <Link
-                href="/notes/episodes"
-                className={`block px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                  pathname.startsWith('/notes/episodes') ? 'text-white bg-white/10' : 'text-white/70 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                Episode Notes
-              </Link>
-              {isAdmin && (
-                <form action="/notes/admin/logout" method="POST" className="pt-2">
-                  <button
-                    type="submit"
-                    className="w-full px-3 py-2 bg-white/10 hover:bg-white/20 text-white/80 hover:text-white text-sm font-medium rounded-md border border-white/20 hover:border-white/30 transition-all duration-200"
+          <>
+            {/* Backdrop */}
+            <div
+              className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+
+            {/* Full-screen Menu */}
+            <div className="md:hidden fixed inset-0 z-50 flex items-center justify-center">
+              <div className="w-full max-w-sm mx-6 bg-black/90 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+                <div className="px-6 py-8 space-y-2">
+                  <Link
+                    href="/"
+                    className={`block px-4 py-3 text-base font-medium rounded-xl transition-all duration-200 ${
+                      pathname === '/' ? 'text-white bg-white/10 shadow-lg' : 'text-white/70 hover:text-white hover:bg-white/5'
+                    }`}
                   >
-                    Logout
-                  </button>
-                </form>
-              )}
+                    Home
+                  </Link>
+                  <Link
+                    href="/notes"
+                    className={`block px-4 py-3 text-base font-medium rounded-xl transition-all duration-200 ${
+                      pathname.startsWith('/notes') && !pathname.startsWith('/notes/episodes') ? 'text-white bg-white/10 shadow-lg' : 'text-white/70 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    Community Notes
+                  </Link>
+                  <Link
+                    href="/notes/episodes"
+                    className={`block px-4 py-3 text-base font-medium rounded-xl transition-all duration-200 ${
+                      pathname.startsWith('/notes/episodes') ? 'text-white bg-white/10 shadow-lg' : 'text-white/70 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    Episode Notes
+                  </Link>
+                  {isAdmin && (
+                    <div className="pt-4 border-t border-white/10">
+                      <form action="/notes/admin/logout" method="POST">
+                        <button
+                          type="submit"
+                          className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 text-white/80 hover:text-white text-base font-medium rounded-xl border border-white/20 hover:border-white/30 transition-all duration-200"
+                        >
+                          Logout
+                        </button>
+                      </form>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </nav>
