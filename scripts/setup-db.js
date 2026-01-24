@@ -41,10 +41,19 @@ async function setupDatabase() {
         content TEXT NOT NULL,
         status TEXT CHECK(status IN ('published','pending','flagged')) NOT NULL,
         is_official BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
     console.log('✅ Notes table created');
+
+    // Add updated_at column if it doesn't exist (for existing tables)
+    try {
+      await client.query(`ALTER TABLE notes ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`);
+      console.log('✅ Updated notes table with updated_at column');
+    } catch (error) {
+      console.log('⚠️  Could not add updated_at column (might already exist):', error.message);
+    }
 
     // Note replies table
     await client.query(`

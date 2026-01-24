@@ -217,7 +217,16 @@ async function executeQuery(query: string, params: unknown[] = []): Promise<Quer
 // Prepared statement equivalents using functions
 export const insertNote = async (id: string, title: string | null, episode_id: string | null, author_name: string | null, author_type: string, content: string, status: string, is_official: boolean) => {
   return executeQuery(
-    'INSERT INTO notes (id, title, episode_id, author_name, author_type, content, status, is_official) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+    `INSERT INTO notes (id, title, episode_id, author_name, author_type, content, status, is_official)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     ON CONFLICT (id) DO UPDATE SET
+       title = EXCLUDED.title,
+       episode_id = EXCLUDED.episode_id,
+       author_name = EXCLUDED.author_name,
+       author_type = EXCLUDED.author_type,
+       content = EXCLUDED.content,
+       status = EXCLUDED.status,
+       is_official = EXCLUDED.is_official`,
     [id, title, episode_id, author_name, author_type, content, status, is_official]
   );
 };

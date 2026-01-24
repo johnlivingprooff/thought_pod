@@ -6,12 +6,14 @@ import { syncNotesFromMarkdown } from '../src/lib/noteSync.js';
 
 async function main() {
   console.log('Starting notes sync...');
-  await syncNotesFromMarkdown();
-  console.log('Notes sync completed!');
+  try {
+    await syncNotesFromMarkdown();
+    console.log('Notes sync completed!');
+  } catch (error) {
+    console.error('Error during notes sync:', error);
+    process.exit(1);
+  }
   process.exit(0);
 }
 
-main().catch((error) => {
-  console.error('Error:', error);
-  process.exit(1);
-});
+main();

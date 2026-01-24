@@ -1,9 +1,8 @@
 import { notFound } from 'next/navigation';
-import { getNotesByEpisode, getEpisodes, initializeDatabase } from '@/lib/db';
+import { getNotesByEpisode, getEpisodes } from '@/lib/db';
 import { Note, Episode, RawNote } from '@/types';
 import Starfield from '@/components/Starfield';
 import NotesList from '@/components/notes/NotesList';
-import AddNoteForm from '@/components/notes/AddNoteForm';
 import OfficialNoteView from '@/components/notes/OfficialNoteView';
 import { getEpisodeNotes } from '@/lib/episodeNotes';
 
@@ -63,7 +62,7 @@ export default async function EpisodeNotesPage({ params }: EpisodePageProps) {
               {episode.title}
             </h1>
             <p className="text-xl text-white/70 max-w-2xl mx-auto leading-relaxed mb-4">
-              Community notes and reflections on this episode.
+              Notes and reflections on this episode.
             </p>
             <div className="text-white/60">
               Published {new Date(episode.published_at || episode.created_at).toLocaleDateString('en-US', {
@@ -72,13 +71,6 @@ export default async function EpisodeNotesPage({ params }: EpisodePageProps) {
                 day: 'numeric'
               })}
             </div>
-          </div>
-        </div>
-
-        {/* Add a Note Section */}
-        <div className="pb-16 px-6">
-          <div className="max-w-4xl mx-auto">
-            <AddNoteForm episodes={episodes} />
           </div>
         </div>
 

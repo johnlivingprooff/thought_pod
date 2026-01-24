@@ -55,10 +55,10 @@ export async function syncNotesFromMarkdown(): Promise<{ synced: number; skipped
           console.log(`📝 Creating bonus note: ${noteTitle}`);
         }
 
-        // Generate ID
-        const id = `note-${episodeId || 'bonus'}-${Date.now()}`;
+        // Generate consistent ID based on episode or filename
+        const id = episodeId ? `note-${episodeId}` : `note-bonus-${title}`;
 
-        // Insert note
+        // Insert or update note
         await insertNote(
           id,
           noteTitle,
