@@ -22,7 +22,7 @@ async function testConnection() {
 }
 
 // Create tables if they don't exist
-async function initializeDatabase() {
+export async function initializeDatabase() {
   try {
     console.log('Initializing database...');
 
@@ -255,7 +255,7 @@ export const getEpisodes = async () => {
 
 export const insertEpisode = async (id: string, title: string, slug: string, published_at: string) => {
   return executeQuery(
-    'INSERT INTO episodes (id, title, slug, published_at) VALUES ($1, $2, $3, $4) ON CONFLICT(id) DO NOTHING',
+    'INSERT INTO episodes (id, title, slug, published_at) VALUES ($1, $2, $3, $4) ON CONFLICT(id) DO UPDATE SET title = EXCLUDED.title, slug = EXCLUDED.slug, published_at = EXCLUDED.published_at',
     [id, title, slug, published_at]
   );
 };

@@ -5,6 +5,7 @@ export interface Thought {
   audio: string;
   pubDate: string;
   theme: 'Capacity' | 'Connection' | 'Condition' | 'Commission';
+  slug: string;
 }
 
 export interface CoreConcept {

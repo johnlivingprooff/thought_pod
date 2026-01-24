@@ -49,19 +49,24 @@ export async function parseRSSFeed(): Promise<Thought[]> {
     const parser = new Parser();
     const feed = await parser.parseURL(RSS_FEED_URL);
 
-    const thoughts: Thought[] = feed.items.map((item, index) => ({
+    // Sort items by publication date (oldest first)
+    const sortedItems = feed.items.sort((a, b) => new Date(a.pubDate || 0).getTime() - new Date(b.pubDate || 0).getTime());
+
+    const thoughts: Thought[] = sortedItems.map((item, index) => ({
       id: item.guid || item.link || `episode-${index}`,
       title: item.title || 'Untitled Episode',
       description: item.contentSnippet || item.content || 'No description available',
       audio: item.enclosure?.url || '',
       pubDate: item.pubDate || new Date().toISOString(),
+      slug: (index + 1).toString(),
       theme: determineTheme(
         item.title || '',
         item.contentSnippet || item.content || ''
       )
     }));
 
-    return thoughts;
+    // Return in reverse order (newest first) for display
+    return thoughts.reverse();
   } catch (error) {
     console.error('Error parsing RSS feed:', error);
     // Return empty array on error - API route will handle this
@@ -89,10 +94,13 @@ export async function getEpisodesFromRSS(): Promise<{ id: string; title: string;
     const thoughts = await parseRSSFeed();
     console.log(`Parsed ${thoughts.length} thoughts from RSS`);
 
-    const episodes = thoughts.map((thought) => ({
+    // Sort episodes by publication date (oldest first)
+    const sortedThoughts = thoughts.sort((a, b) => new Date(a.pubDate).getTime() - new Date(b.pubDate).getTime());
+
+    const episodes = sortedThoughts.map((thought, index) => ({
       id: thought.id,
       title: thought.title,
-      slug: thought.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      slug: (index + 1).toString(), // Use sequential numbers as slugs
       published_at: thought.pubDate
     }));
 
@@ -107,6 +115,8 @@ export async function getEpisodesFromRSS(): Promise<{ id: string; title: string;
 export async function syncEpisodesToDatabase(): Promise<{ synced: number; skipped: number; errors: number }> {
   try {
     console.log('Syncing episodes from RSS to database...');
+    const { initializeDatabase } = await import('./db');
+    await initializeDatabase(); // Ensure database is initialized
     const rssEpisodes = await getEpisodesFromRSS();
     const { insertEpisode, getEpisodes } = await import('./db');
 

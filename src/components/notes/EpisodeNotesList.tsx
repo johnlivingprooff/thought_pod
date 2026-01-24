@@ -11,10 +11,11 @@ import { truncateNoteContent } from '@/lib/noteUtils';
 
 interface EpisodeNotesListProps {
   notes: Note[];
+  bonusNotes: Note[];
   episodes: Episode[];
 }
 
-export default function EpisodeNotesList({ notes, episodes }: EpisodeNotesListProps) {
+export default function EpisodeNotesList({ notes, bonusNotes, episodes }: EpisodeNotesListProps) {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [noteReplies, setNoteReplies] = useState<NoteReply[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -79,6 +80,90 @@ export default function EpisodeNotesList({ notes, episodes }: EpisodeNotesListPr
 
   return (
     <>
+      {/* Bonus Notes Section */}
+      {bonusNotes.length > 0 && (
+        <div className="mb-16">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-white mb-2">Bonus Notes</h2>
+            <p className="text-white/60 text-sm">
+              {bonusNotes.length} bonus note{bonusNotes.length !== 1 ? 's' : ''} • Additional insights and reflections
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-min">
+            {bonusNotes.map((note, index) => {
+              const rotation = ((note.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 20) - 10) * 0.1;
+
+              return (
+                <motion.div
+                  key={note.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 cursor-pointer group ${
+                    note.is_official ? 'ring-2 ring-blue-400/50' : ''
+                  }`}
+                  style={{ transform: `rotate(${rotation}deg)` }}
+                  onClick={() => handleNoteClick(note)}
+                >
+                  {/* Note Header */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      {note.title && (
+                        <h3 className="text-white font-semibold text-sm mb-1 line-clamp-2">
+                          {note.title}
+                        </h3>
+                      )}
+                      <div className="flex items-center gap-2 text-xs text-white/60">
+                        <span>{note.author_name || 'Anonymous'}</span>
+                        {note.is_official && (
+                          <span className="px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded-full text-xs">
+                            Official
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Note Content */}
+                  <div className="text-white/80 text-sm leading-relaxed">
+                    <ReactMarkdown
+                      components={{
+                        code({ node, className, children, ...props }) {
+                          const match = /language-(\w+)/.exec(className || '');
+                          return match ? (
+                            <SyntaxHighlighter
+                              language={match[1]}
+                              PreTag="div"
+                              className="rounded text-xs"
+                            >
+                              {String(children).replace(/\n$/, '')}
+                            </SyntaxHighlighter>
+                          ) : (
+                            <code className="bg-black/30 px-1 py-0.5 rounded text-xs" {...props}>
+                              {children}
+                            </code>
+                          );
+                        },
+                      }}
+                    >
+                      {truncateNoteContent(note.content)}
+                    </ReactMarkdown>
+                  </div>
+
+                  {/* Read More Indicator */}
+                  {truncateNoteContent(note.content).includes('...') && (
+                    <div className="mt-2 text-white/50 text-xs">
+                      Click to read more...
+                    </div>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {Object.entries(notesByEpisode).map(([episodeId, episodeNotes]) => {
         const episode = episodes.find(ep => ep.id === episodeId);
         if (!episode) return null;

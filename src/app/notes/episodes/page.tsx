@@ -23,8 +23,9 @@ export default async function EpisodeNotesPage() {
     is_official: Boolean(note.is_official)
   })) as Note[];
 
-  // Filter notes that have episode associations
+  // Filter notes that have episode associations and bonus notes
   const episodeNotes = notes.filter(note => note.episode_id);
+  const bonusNotes = notes.filter(note => !note.episode_id && note.is_official);
 
   return (
     <div className="min-h-screen relative">
@@ -61,7 +62,7 @@ export default async function EpisodeNotesPage() {
           )}
 
           {/* Episode Notes Grid */}
-          <EpisodeNotesList notes={episodeNotes} episodes={episodes} />
+          <EpisodeNotesList notes={episodeNotes} bonusNotes={bonusNotes} episodes={episodes} />
         </div>
       </div>
     </div>

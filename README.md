@@ -57,3 +57,25 @@ npm run dev
 
 Use the admin secret from `.env.local` to access the admin panel at `/notes/admin`.
 
+### Syncing Episode Notes
+
+To add official episode notes from Markdown files:
+
+1. **Place Markdown Files**: Put your `.md` files in the `public/episode-notes-md/` folder
+2. **File Naming**: Name each file with sequential numbers starting from `1.md` (e.g., `1.md`, `2.md`, `3.md`)
+   - `1.md` corresponds to the first (oldest) episode from the RSS feed
+   - `2.md` corresponds to the second episode, and so on
+   - Files with numbers beyond the available episodes will be created as "Bonus Notes"
+3. **Content**: The file content will be used as the note content
+4. **Sync Command**: Run `npm run db:sync-notes` to import the notes into the database
+5. **Display**: Episode notes are shown under their respective episodes, while bonus notes appear in a separate "Bonus Notes" section at the top of the page
+
+Example file structure:
+```
+public/episode-notes-md/
+├── 1.md      # First episode
+├── 2.md      # Second episode
+├── 5.md      # Bonus note (if only 3 episodes exist)
+└── 6.md      # Another bonus note
+```
+

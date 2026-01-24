@@ -17,7 +17,7 @@ export default function Landing() {
           href="#episodes"
           className="text-white/60 hover:text-white transition-colors text-lg underline decoration-1 underline-offset-4"
         >
-          Learn more
+          Latest Episode
         </Link>
       </div>
     </div>

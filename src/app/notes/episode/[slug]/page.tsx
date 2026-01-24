@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getNotesByEpisode, getEpisodes } from '@/lib/db';
+import { getNotesByEpisode, getEpisodes, initializeDatabase } from '@/lib/db';
 import { Note, Episode, RawNote } from '@/types';
 import Starfield from '@/components/Starfield';
 import NotesList from '@/components/notes/NotesList';
@@ -8,7 +8,7 @@ import OfficialNoteView from '@/components/notes/OfficialNoteView';
 import { getEpisodeNotes } from '@/lib/episodeNotes';
 
 interface EpisodePageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 async function getEpisodeBySlug(slug: string): Promise<Episode | null> {
@@ -18,7 +18,8 @@ async function getEpisodeBySlug(slug: string): Promise<Episode | null> {
 }
 
 export default async function EpisodeNotesPage({ params }: EpisodePageProps) {
-  const episode = await getEpisodeBySlug(params.slug);
+  const { slug } = await params;
+  const episode = await getEpisodeBySlug(slug);
 
   if (!episode) {
     notFound();
@@ -36,11 +37,11 @@ export default async function EpisodeNotesPage({ params }: EpisodePageProps) {
   })) as Note[];
 
   // Get official episode notes from markdown files
-  const officialNotesContent = await getEpisodeNotes(params.slug);
+  const officialNotesContent = await getEpisodeNotes(slug);
 
   // Create an official note object if content exists
   const officialNote: Note | null = officialNotesContent ? {
-    id: `official-${params.slug}`,
+    id: `official-${slug}`,
     title: 'Show Notes',
     episode_id: episode.id,
     author_name: 'Thought Podcast',

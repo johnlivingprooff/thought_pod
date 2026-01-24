@@ -37,10 +37,6 @@ export default function EpisodeList({
     return true;
   });
 
-  const handleClick = (episode: Thought) => {
-    currentEpisode?.id === episode.id ? togglePlayPause() : playEpisode(episode);
-  };
-
   return (
     <section id="episodes" className="py-16 sm:py-20 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
@@ -90,9 +86,8 @@ export default function EpisodeList({
                 whileHover={{ scale: 1.015 }}
                 onHoverStart={() => setHovered(episode.id)}
                 onHoverEnd={() => setHovered(null)}
-                onClick={() => handleClick(episode)}
                 className={`
-                  relative rounded-xl border overflow-hidden cursor-pointer
+                  relative rounded-xl border overflow-hidden
                   transition-colors
                   ${active
                     ? 'bg-white/15 border-white/30'
@@ -144,9 +139,7 @@ export default function EpisodeList({
                   {/* Actions */}
                   <div className="flex items-center gap-3 sm:gap-4">
                     <Link
-                      href={`/notes/episode/${episode.title
-                        .toLowerCase()
-                        .replace(/[^a-z0-9]+/g, '-')}`}
+                      href={`/notes/episode/${episode.slug}`}
                       className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition"
                       aria-label="Episode notes"
                     >
