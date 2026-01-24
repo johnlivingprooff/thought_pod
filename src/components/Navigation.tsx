@@ -15,7 +15,7 @@ export default function Navigation() {
 
   useEffect(() => {
     // Only check admin status on notes pages
-    if (pathname.startsWith('/notes')) {
+    if (pathname.startsWith('/notes/')) {
       checkAdminStatus().then(setIsAdmin).catch(() => setIsAdmin(false));
     }
   }, [pathname]);
@@ -63,15 +63,7 @@ export default function Navigation() {
             <Link
               href="/notes"
               className={`text-sm font-medium transition-colors ${
-                pathname.startsWith('/notes') && !pathname.startsWith('/notes/episodes') ? 'text-white' : 'text-white/70 hover:text-white'
-              }`}
-            >
-              Community Notes
-            </Link>
-            <Link
-              href="/notes/episodes"
-              className={`text-sm font-medium transition-colors ${
-                pathname.startsWith('/notes/episodes') ? 'text-white' : 'text-white/70 hover:text-white'
+                pathname.startsWith('/notes') ? 'text-white' : 'text-white/70 hover:text-white'
               }`}
             >
               Episode Notes
@@ -163,15 +155,7 @@ export default function Navigation() {
                   <Link
                     href="/notes"
                     className={`block px-4 py-3 text-base font-medium rounded-xl transition-all duration-200 ${
-                      pathname.startsWith('/notes') && !pathname.startsWith('/notes/episodes') ? 'text-white bg-white/10 shadow-lg' : 'text-white/70 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    Community Notes
-                  </Link>
-                  <Link
-                    href="/notes/episodes"
-                    className={`block px-4 py-3 text-base font-medium rounded-xl transition-all duration-200 ${
-                      pathname.startsWith('/notes/episodes') ? 'text-white bg-white/10 shadow-lg' : 'text-white/70 hover:text-white hover:bg-white/5'
+                      pathname.startsWith('/notes') ? 'text-white bg-white/10 shadow-lg' : 'text-white/70 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     Episode Notes

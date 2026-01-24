@@ -1,85 +1,15 @@
-import { Suspense } from 'react';
-import { getPublishedNotes, getNotesByEpisode, getEpisodes } from '@/lib/db';
-import { Note, Episode, RawNote } from '@/types';
+import { getEpisodes } from '@/lib/db';
+import { Episode } from '@/types';
 import Starfield from '@/components/Starfield';
-import NotesList from '@/components/notes/NotesList';
-import AddNoteForm from '@/components/notes/AddNoteForm';
-import AddNoteToggle from '@/components/notes/AddNoteToggle';
-import EpisodeFilter from '@/components/notes/EpisodeFilter';
-import LatestNotes from '@/components/notes/LatestNotes';
-
-async function getNotes(episodeId?: string): Promise<Note[]> {
-  let rawNotes: RawNote[];
-  if (episodeId) {
-    const result = await getNotesByEpisode(episodeId);
-    rawNotes = result.rows as RawNote[];
-  } else {
-    const result = await getPublishedNotes();
-    rawNotes = result.rows as RawNote[];
-  }
-
-  // Convert is_official from integer (0/1) to boolean
-  return rawNotes.map(note => ({
-    ...note,
-    is_official: Boolean(note.is_official)
-  })) as Note[];
-}
+import EpisodeNotesIndex from '@/components/notes/EpisodeNotesIndex';
 
 async function getEpisodesList(): Promise<Episode[]> {
   const result = await getEpisodes();
   return result.rows as Episode[];
 }
 
-async function getLatestNotes(): Promise<{ editorial: Note | null; community: Note | null }> {
-  const result = await getPublishedNotes();
-  const rawNotes: RawNote[] = result.rows as RawNote[];
-
-  // Convert is_official from integer (0/1) to boolean
-  const allNotes = rawNotes.map(note => ({
-    ...note,
-    is_official: Boolean(note.is_official)
-  })) as Note[];
-
-  // Find the latest notes and truncate content to first line
-  const truncateToFirstLine = (content: string): string => {
-    const lines = content.split('\n');
-    const firstLine = lines[0].trim();
-    // If the first line is very short or the content is short, show more
-    if (firstLine.length < 100 && content.length < 200) {
-      return content;
-    }
-    // Otherwise, truncate to first line with ellipsis
-    return firstLine.length > 100 ? firstLine.substring(0, 100) + '...' : firstLine + '...';
-  };
-
-  const editorial = allNotes.find(note => note.author_type === 'admin') || null;
-  const community = allNotes.find(note => note.author_type === 'community') || null;
-
-  // Truncate content for preview
-  const truncatedEditorial = editorial ? {
-    ...editorial,
-    content: truncateToFirstLine(editorial.content)
-  } : null;
-
-  const truncatedCommunity = community ? {
-    ...community,
-    content: truncateToFirstLine(community.content)
-  } : null;
-
-  return { editorial: truncatedEditorial, community: truncatedCommunity };
-}
-
-interface NotesPageProps {
-  searchParams: Promise<{ episode?: string }>;
-}
-
-export default async function NotesPage({ searchParams }: NotesPageProps) {
-  const params = await searchParams;
-  const [notes, episodes, latestNotes] = await Promise.all([
-    getNotes(params.episode),
-    getEpisodesList(),
-    getLatestNotes()
-  ]);
+export default async function NotesPage() {
+  const episodes = await getEpisodesList();
 
   return (
     <div className="min-h-screen relative">
@@ -89,64 +19,18 @@ export default async function NotesPage({ searchParams }: NotesPageProps) {
         <div className="pt-24 pb-16 px-6 relative">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-              Community Notes
+              Episode Notes
             </h1>
             <p className="text-xl text-white/70 max-w-2xl mx-auto leading-relaxed">
-              A quiet room where people think together. Reflections, insights, and conversations inspired by our podcast.
+              Deep dives into each episode with reflections, insights, and key takeaways.
             </p>
           </div>
         </div>
 
-        {/* Latest Notes Section */}
+        {/* Episode Notes Index */}
         <div className="pb-16 px-6">
           <div className="max-w-6xl mx-auto">
-            <LatestNotes editorial={latestNotes.editorial} community={latestNotes.community} />
-          </div>
-        </div>
-
-        {/* Add a Note Section - only show if no notes exist */}
-        {notes.length === 0 && (
-          <div className="pb-16 px-6">
-            <div className="max-w-4xl mx-auto">
-              <AddNoteForm episodes={episodes} />
-            </div>
-          </div>
-        )}
-
-        {/* Notes Feed */}
-        <div className="pb-16 px-6">
-          <div className="max-w-4xl mx-auto">
-            {params.episode && (
-              <div className="mb-8">
-                <EpisodeFilter episodes={episodes} currentEpisode={params.episode} />
-              </div>
-            )}
-
-            <Suspense fallback={<div className="text-white/50 text-center py-12">Loading notes...</div>}>
-              <NotesList notes={notes} episodes={episodes} />
-            </Suspense>
-
-            {/* Add Note Button - only show if notes exist */}
-            {notes.length > 0 && (
-              <div className="mt-12 text-center">
-                <AddNoteToggle episodes={episodes} />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Footer Context */}
-        <div className="pb-16 px-6">
-          <div className="max-w-4xl mx-auto text-center">
-            <p className="text-white/40 text-sm mb-2">
-              Notes are moderated with care. Community contributions appear after review.
-            </p>
-            <a
-              href="/notes/community-guidelines"
-              className="text-white/60 hover:text-white/80 text-sm underline transition-colors"
-            >
-              Community Guidelines
-            </a>
+            <EpisodeNotesIndex episodes={episodes} />
           </div>
         </div>
       </div>
