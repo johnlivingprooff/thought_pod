@@ -152,6 +152,13 @@ export default function EpisodeList({
 
                     <motion.button
                       whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        if (active) {
+                          togglePlayPause();
+                        } else {
+                          playEpisode(episode);
+                        }
+                      }}
                       className={`
                         w-10 h-10 sm:w-16 sm:h-16 rounded-full
                         border-2 flex items-center justify-center

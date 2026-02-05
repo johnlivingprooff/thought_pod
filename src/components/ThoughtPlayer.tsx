@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAudioStore } from '@/lib/audioStore';
 import { Thought } from '@/types';
@@ -23,10 +22,8 @@ export default function ThoughtPlayer({ episodes }: ThoughtPlayerProps) {
     playNext,
     playPrevious,
     seek,
-    sound
+    stop,
   } = useAudioStore();
-
-  const [visible, setVisible] = useState(true);
 
   // Format time in MM:SS
   const formatTime = (seconds: number): string => {
@@ -38,7 +35,7 @@ export default function ThoughtPlayer({ episodes }: ThoughtPlayerProps) {
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  if (!currentEpisode || !visible) return null;
+  if (!currentEpisode) return null;
 
   return (
     <AnimatePresence>
@@ -53,12 +50,7 @@ export default function ThoughtPlayer({ episodes }: ThoughtPlayerProps) {
         <div className="max-w-7xl mx-auto px-4 py-4 relative">
           {/* Close Button - mobile optimized, floating top-left */}
           <button
-            onClick={() => {
-              setVisible(false);
-              if (sound) {
-                sound.stop();
-              }
-            }}
+            onClick={stop}
             className="fixed top-4 left-4 z-[100] w-12 h-12 rounded-full bg-black/70 hover:bg-black/90 flex items-center justify-center shadow-lg border border-white/20"
             aria-label="Close player"
             style={{ touchAction: 'manipulation' }}
