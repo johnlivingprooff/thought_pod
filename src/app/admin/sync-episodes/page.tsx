@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { checkAdminStatus } from '@/app/notes/actions';
 
 export default function SyncEpisodesPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +24,7 @@ export default function SyncEpisodesPage() {
       } else {
         setError(data.error || 'Sync failed');
       }
-    } catch (err) {
+    } catch {
       setError('Network error occurred');
     } finally {
       setIsLoading(false);

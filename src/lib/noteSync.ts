@@ -3,14 +3,14 @@ import path from 'path';
 import { insertNote } from './db';
 import { getEpisodes } from './db';
 
-export async function syncNotesFromMarkdown(): Promise<{ synced: number; skipped: number; errors: number }> {
+export async function syncNotesFromMarkdown(): Promise<{ synced: number; errors: number }> {
   try {
     console.log('Syncing notes from Markdown files...');
     const notesDir = path.join(process.cwd(), 'public/episode-notes-md');
 
     if (!fs.existsSync(notesDir)) {
       console.log('Notes directory does not exist:', notesDir);
-      return { synced: 0, skipped: 0, errors: 0 };
+      return { synced: 0, errors: 0 };
     }
 
     const files = fs.readdirSync(notesDir).filter(file => file.endsWith('.md')).sort();
@@ -21,7 +21,6 @@ export async function syncNotesFromMarkdown(): Promise<{ synced: number; skipped
     const episodes = episodesResult.rows.sort((a, b) => new Date(a.published_at).getTime() - new Date(b.published_at).getTime());
 
     let synced = 0;
-    let skipped = 0;
     let errors = 0;
 
     for (const file of files) {
@@ -72,8 +71,8 @@ export async function syncNotesFromMarkdown(): Promise<{ synced: number; skipped
       }
     }
 
-    console.log(`Note sync completed: ${synced} synced, ${skipped} skipped, ${errors} errors`);
-    return { synced, skipped, errors };
+    console.log(`Note sync completed: ${synced} synced, ${errors} errors`);
+    return { synced, errors };
   } catch (error) {
     console.error('Error syncing notes from Markdown:', error);
     throw error;

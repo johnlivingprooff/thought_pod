@@ -100,9 +100,8 @@ export default function EpisodeNotesList({ notes, bonusNotes, episodes }: Episod
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className={`bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 cursor-pointer group ${
-                    note.is_official ? 'ring-2 ring-blue-400/50' : ''
-                  }`}
+                  className={`bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20 hover:bg-white/15 transition-all duration-300 cursor-pointer group ${note.is_official ? 'ring-2 ring-blue-400/50' : ''
+                    }`}
                   style={{ transform: `rotate(${rotation}deg)` }}
                   onClick={() => handleNoteClick(note)}
                 >
@@ -129,7 +128,7 @@ export default function EpisodeNotesList({ notes, bonusNotes, episodes }: Episod
                   <div className="text-white/80 text-sm leading-relaxed">
                     <ReactMarkdown
                       components={{
-                        code({ node, className, children, ...props }) {
+                        code({ className, children, ...props }) {
                           const match = /language-(\w+)/.exec(className || '');
                           return match ? (
                             <SyntaxHighlighter
@@ -194,11 +193,10 @@ export default function EpisodeNotesList({ notes, bonusNotes, episodes }: Episod
                   >
                     <div
                       onClick={() => handleNoteClick(note)}
-                      className={`backdrop-blur-md rounded-lg p-6 border shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:rotate-0 cursor-pointer flex flex-col ${
-                        note.is_official
-                          ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-400/50 shadow-amber-500/20'
-                          : 'bg-white/10 border-white/20'
-                      }`}
+                      className={`backdrop-blur-md rounded-lg p-6 border shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 hover:rotate-0 cursor-pointer flex flex-col ${note.is_official
+                        ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border-amber-400/50 shadow-amber-500/20'
+                        : 'bg-white/10 border-white/20'
+                        }`}
                       style={{
                         transform: `rotate(${rotation}deg)`,
                         transition: 'transform 0.3s ease-out, scale 0.3s ease-out'
@@ -206,9 +204,8 @@ export default function EpisodeNotesList({ notes, bonusNotes, episodes }: Episod
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center space-x-2">
-                          <div className={`w-2 h-2 rounded-full ${
-                            note.author_type === 'admin' ? 'bg-blue-400' : 'bg-green-400'
-                          }`} />
+                          <div className={`w-2 h-2 rounded-full ${note.author_type === 'admin' ? 'bg-blue-400' : 'bg-green-400'
+                            }`} />
                           <div>
                             <p className="font-medium text-white text-sm">
                               {note.author_name || 'Anonymous'}

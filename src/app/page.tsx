@@ -9,7 +9,6 @@ import EpisodeList from '@/components/EpisodeList';
 import ThoughtPlayer from '@/components/ThoughtPlayer';
 import Navigation from '@/components/Navigation';
 import { Thought } from '@/types';
-import { useAudioStore } from '@/lib/audioStore';
 
 export default function Home() {
   const [episodes, setEpisodes] = useState<Thought[]>([]);
@@ -56,17 +55,17 @@ export default function Home() {
       <Navigation />
       <Starfield themeColor={getThemeColor(selectedTheme)} />
       <BackgroundAmbientAudio />
-      
+
       <Landing />
 
 
 
-      <FourCs 
+      <FourCs
         selectedTheme={selectedTheme}
         onThemeSelect={handleThemeSelect}
       />
 
-      <EpisodeList 
+      <EpisodeList
         episodes={episodes}
         selectedTheme={selectedTheme}
       />

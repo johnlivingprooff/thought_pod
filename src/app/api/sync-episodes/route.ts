@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { syncEpisodesToDatabase } from '@/lib/rssParser';
 import { checkAdminStatus } from '@/app/notes/actions';
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     // Check if user is admin (optional - remove if you want public access)
     const isAdmin = await checkAdminStatus();
@@ -28,6 +28,6 @@ export async function GET(request: Request) {
 }
 
 // Also allow POST for easier integration
-export async function POST(request: Request) {
-  return GET(request);
+export async function POST() {
+  return GET();
 }
