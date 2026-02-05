@@ -29,48 +29,42 @@ export async function syncNotesFromMarkdown(): Promise<{ synced: number; skipped
         const filePath = path.join(notesDir, file);
         const content = fs.readFileSync(filePath, 'utf-8');
 
-        // Parse episode number from filename (e.g., "1.md" -> 1)
-        const numberMatch = file.match(/^(\d+)\.md$/);
-        if (!numberMatch) {
-          console.log(`⚠️  Invalid filename format: ${file} (expected format: 1.md, 2.md, etc.)`);
-          skipped++;
-          continue;
-        }
-
-        const episodeIndex = parseInt(numberMatch[1], 10) - 1; // Convert to 0-based index
-        const episode = episodes[episodeIndex];
-
-        // Use filename without .md as title
-        const title = file.replace('.md', '');
-        const noteContent = content;
+        // Parse title and slug from filename
+        const fileNameWithoutExt = file.replace('.md', '');
 
         let episodeId: string | null = null;
-        let noteTitle = title;
+        let noteTitle = fileNameWithoutExt;
+
+        // Try to find the episode by slug/number
+        // We check if the filename (e.g., "10") matches an episode slug
+        const episode = episodes.find(ep => ep.slug === fileNameWithoutExt);
 
         if (episode) {
           episodeId = episode.id;
+          console.log(`🔗 Found episode match for ${file}: ${episode.title}`);
         } else {
-          // Bonus note without corresponding episode
-          noteTitle = `Bonus: ${title}`;
-          console.log(`📝 Creating bonus note: ${noteTitle}`);
+          // Bonus note or unknown episode
+          noteTitle = `Official Note: ${fileNameWithoutExt}`;
+          console.log(`📝 Syncing as standalone note: ${file}`);
         }
 
-        // Generate consistent ID based on episode or filename
-        const id = episodeId ? `note-${episodeId}` : `note-bonus-${title}`;
+        // Generate consistent ID based on filename to ensure we update existing records
+        // We use a prefix to identify these as official notes
+        const id = `official-${fileNameWithoutExt.toLowerCase().replace(/\s+/g, '-')}`;
 
         // Insert or update note
         await insertNote(
           id,
           noteTitle,
           episodeId,
-          'Admin', // or null
+          episode ? 'Thought Pod' : 'Admin',
           'admin',
-          noteContent,
+          content,
           'published',
           true // is_official
         );
 
-        console.log(`✅ Synced note: ${noteTitle}${episode ? ` for episode ${episode.title}` : ' (bonus)'}`);
+        console.log(`✅ Synced note: ${noteTitle}${episode ? ` (linked to ${episode.title})` : ''}`);
         synced++;
       } catch (error) {
         console.error(`❌ Error syncing note from ${file}:`, error);
