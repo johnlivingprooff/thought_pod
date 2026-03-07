@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { syncEpisodesToDatabase } from '@/lib/rssParser';
+import { syncNotesFromMarkdown } from '@/lib/noteSync';
 import { checkAdminStatus } from '@/app/notes/actions';
 
 export async function GET() {
@@ -11,12 +12,15 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    console.log('Starting episode sync...');
-    await syncEpisodesToDatabase();
+    console.log('Starting episode and note sync...');
+    const episodeSyncResult = await syncEpisodesToDatabase();
+    const noteSyncResult = await syncNotesFromMarkdown();
 
     return NextResponse.json({
-      message: 'Episodes synced successfully',
-      timestamp: new Date().toISOString()
+      message: 'Episodes and notes synced successfully',
+      episodes: episodeSyncResult,
+      notes: noteSyncResult,
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error syncing episodes:', error);

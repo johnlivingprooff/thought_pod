@@ -21,47 +21,23 @@ async function testConnection() {
   }
 }
 
-// Create tables if they don't exist
+// Create tables if they don't exist (non-destructive)
 export async function initializeDatabase() {
   try {
-    console.log('Initializing database...');
+    console.log('Initializing database tables...');
 
-    // First, check for any conflicting objects named 'notes'
-    console.log('Checking for conflicting objects...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS episodes (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        slug TEXT UNIQUE NOT NULL,
+        published_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
 
-    // More aggressive cleanup - drop everything that might conflict
-    try {
-      await pool.query('DROP TABLE IF EXISTS note_replies CASCADE');
-      await pool.query('DROP TABLE IF EXISTS notes CASCADE');
-      await pool.query('DROP TABLE IF EXISTS episodes CASCADE');
-      await pool.query('DROP TYPE IF EXISTS notes CASCADE');
-      await pool.query('DROP DOMAIN IF EXISTS notes CASCADE');
-      await pool.query('DROP VIEW IF EXISTS notes CASCADE');
-      console.log('Cleaned up any existing conflicting objects');
-    } catch {
-      console.log('Cleanup completed (some objects may not have existed)');
-    }
-
-    // Now create fresh tables
-    console.log('Creating tables...');
-
-    // Create tables with error handling for concurrent creation
-    const createTable = async (name: string, sql: string) => {
-      try {
-        await pool.query(sql);
-        console.log(`${name} table created successfully`);
-      } catch (error) {
-        const pgError = error as { code?: string };
-        if (pgError.code === '42P07') { // relation already exists
-          console.log(`${name} table already exists, skipping`);
-        } else {
-          throw error;
-        }
-      }
-    };
-
-    await createTable('notes', `
-      CREATE TABLE notes (
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS notes (
         id TEXT PRIMARY KEY,
         title TEXT,
         episode_id TEXT,
@@ -74,8 +50,8 @@ export async function initializeDatabase() {
       )
     `);
 
-    await createTable('note_replies', `
-      CREATE TABLE note_replies (
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS note_replies (
         id TEXT PRIMARY KEY,
         note_id TEXT NOT NULL,
         author_name TEXT,
@@ -86,115 +62,22 @@ export async function initializeDatabase() {
       )
     `);
 
-    await createTable('episodes', `
-      CREATE TABLE episodes (
-        id TEXT PRIMARY KEY,
-        title TEXT NOT NULL,
-        slug TEXT UNIQUE NOT NULL,
-        published_at TIMESTAMP,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    console.log('Database initialized successfully');
+    console.log('Database tables verified/created successfully');
   } catch (error) {
     console.error('Error initializing database:', error);
     // Don't throw here - let the app continue without crashing
   }
 }
 
-// Check if tables exist and create them if they don't
 async function ensureTablesExist() {
-  try {
-    console.log('Checking database tables...');
-
-    // Check if notes table exists
-    const notesExists = await pool.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables
-        WHERE table_name = 'notes'
-      )
-    `);
-
-    if (!notesExists.rows[0].exists) {
-      console.log('Creating notes table...');
-      await pool.query(`
-        CREATE TABLE notes (
-          id TEXT PRIMARY KEY,
-          title TEXT,
-          episode_id TEXT,
-          author_name TEXT,
-          author_type TEXT CHECK(author_type IN ('admin','community')) NOT NULL,
-          content TEXT NOT NULL,
-          status TEXT CHECK(status IN ('published','pending','flagged')) NOT NULL,
-          is_official BOOLEAN DEFAULT FALSE,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-      `);
-    }
-
-    // Check if note_replies table exists
-    const repliesExists = await pool.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables
-        WHERE table_name = 'note_replies'
-      )
-    `);
-
-    if (!repliesExists.rows[0].exists) {
-      console.log('Creating note_replies table...');
-      await pool.query(`
-        CREATE TABLE note_replies (
-          id TEXT PRIMARY KEY,
-          note_id TEXT NOT NULL,
-          author_name TEXT,
-          author_type TEXT CHECK(author_type IN ('admin','community')) NOT NULL,
-          content TEXT NOT NULL,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE
-        )
-      `);
-    }
-
-    // Check if episodes table exists
-    const episodesExists = await pool.query(`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables
-        WHERE table_name = 'episodes'
-      )
-    `);
-
-    if (!episodesExists.rows[0].exists) {
-      console.log('Creating episodes table...');
-      await pool.query(`
-        CREATE TABLE episodes (
-          id TEXT PRIMARY KEY,
-          title TEXT NOT NULL,
-          slug TEXT UNIQUE NOT NULL,
-          published_at TIMESTAMP,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-      `);
-    }
-
-    console.log('Database tables verified/created successfully');
-  } catch (error) {
-    console.error('Error ensuring tables exist:', error);
-    // Don't throw here - let the app continue
-  }
+  await initializeDatabase();
 }
 
 // Initialize database on module load (only in runtime, not during build)
 async function initializeApp() {
   const connected = await testConnection();
-  if (connected) {
-    // In production, just ensure tables exist
-    if (process.env.NODE_ENV === 'production') {
-      await ensureTablesExist();
-    } else if (process.env.SKIP_DB_INIT !== 'true') {
-      // In development, do full initialization
-      await initializeDatabase();
-    }
+  if (connected && process.env.SKIP_DB_INIT !== 'true') {
+    await ensureTablesExist();
   }
 }
 

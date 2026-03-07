@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { insertNote } from './db';
-import { getEpisodes } from './db';
+import { getEpisodes, initializeDatabase, insertNote } from './db';
 
 export async function syncNotesFromMarkdown(): Promise<{ synced: number; errors: number }> {
   try {
     console.log('Syncing notes from Markdown files...');
+    await initializeDatabase();
     const notesDir = path.join(process.cwd(), 'public/episode-notes-md');
 
     if (!fs.existsSync(notesDir)) {

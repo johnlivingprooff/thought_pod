@@ -2,10 +2,10 @@
 
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
-import { syncEpisodesToDatabase } from '../src/lib/rssParser.js';
 
 async function main() {
   console.log('Starting episode sync...');
+  const { syncEpisodesToDatabase } = await import('../src/lib/rssParser.js');
   await syncEpisodesToDatabase();
   console.log('Episode sync completed!');
   process.exit(0);
