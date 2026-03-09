@@ -1,8 +1,12 @@
 'use client';
 
+import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { Episode } from '@/types';
+import { Episode, Thought } from '@/types';
+import { useAudioStore } from '@/lib/audioStore';
+import ThoughtPlayer from '@/components/ThoughtPlayer';
 
 interface EpisodeNotesBlogProps {
   episode: Episode;
@@ -10,6 +14,57 @@ interface EpisodeNotesBlogProps {
 }
 
 export default function EpisodeNotesBlog({ episode, content }: EpisodeNotesBlogProps) {
+  const [allEpisodes, setAllEpisodes] = useState<Thought[]>([]);
+  const [isLoadingEpisodes, setIsLoadingEpisodes] = useState(true);
+  const { currentEpisode, isPlaying, playEpisode, togglePlayPause } = useAudioStore();
+
+  useEffect(() => {
+    const fetchEpisodes = async () => {
+      try {
+        const response = await fetch('/api/episodes');
+        if (!response.ok) {
+          setAllEpisodes([]);
+          return;
+        }
+        const data = await response.json();
+        setAllEpisodes(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Failed to fetch episodes for playback:', error);
+        setAllEpisodes([]);
+      } finally {
+        setIsLoadingEpisodes(false);
+      }
+    };
+
+    fetchEpisodes();
+  }, []);
+
+  const matchedEpisode = useMemo(
+    () =>
+      allEpisodes.find((thought) => {
+        if (thought.id === episode.id || thought.slug === episode.slug) {
+          return true;
+        }
+
+        return thought.title.trim().toLowerCase() === episode.title.trim().toLowerCase();
+      }),
+    [allEpisodes, episode.id, episode.slug, episode.title]
+  );
+
+  const activeThought = matchedEpisode && currentEpisode?.id === matchedEpisode.id;
+  const canPlay = Boolean(matchedEpisode?.audio);
+
+  const handlePlayClick = () => {
+    if (!matchedEpisode) return;
+
+    if (activeThought) {
+      togglePlayPause();
+      return;
+    }
+
+    playEpisode(matchedEpisode);
+  };
+
   return (
     <div className="min-h-screen relative">
       {/* Hero Section */}
@@ -27,6 +82,30 @@ export default function EpisodeNotesBlog({ episode, content }: EpisodeNotesBlogP
               month: 'long',
               day: 'numeric'
             })}
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/notes"
+              className="px-4 py-2 rounded-full border border-white/20 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white transition-colors text-sm"
+            >
+              Back to all notes
+            </Link>
+
+            <button
+              type="button"
+              onClick={handlePlayClick}
+              disabled={isLoadingEpisodes || !canPlay}
+              className="px-5 py-2.5 rounded-full border border-white/30 bg-white/15 text-white font-medium hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            >
+              {isLoadingEpisodes
+                ? 'Loading audio...'
+                : activeThought
+                ? isPlaying
+                  ? 'Pause episode'
+                  : 'Resume episode'
+                : 'Play episode'}
+            </button>
           </div>
         </div>
       </div>
@@ -121,6 +200,8 @@ export default function EpisodeNotesBlog({ episode, content }: EpisodeNotesBlogP
           </div>
         </article>
       </div>
+
+      <ThoughtPlayer episodes={allEpisodes} />
     </div>
   );
 }

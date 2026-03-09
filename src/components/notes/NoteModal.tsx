@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Note, NoteReply } from '@/types';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { addReply } from '@/app/notes/actions';
+import AddReplyForm from './AddReplyForm';
 
 interface NoteModalProps {
   note: Note | null;
@@ -16,48 +16,18 @@ interface NoteModalProps {
 }
 
 export default function NoteModal({ note, replies, isOpen, onClose, episodes }: NoteModalProps) {
-  const [replyContent, setReplyContent] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [displayedReplies, setDisplayedReplies] = useState<NoteReply[]>(replies);
 
   useEffect(() => {
-    if (isOpen && note && !replies.length) {
-      // Test reply functionality
-      const testReply = async () => {
-        try {
-          const formData = new FormData();
-          formData.append('note_id', note.id);
-          formData.append('content', 'Test reply from useEffect');
-          await addReply(formData);
-          console.log('Test reply submitted');
-        } catch (error) {
-          console.error('Test reply failed:', error);
-        }
-      };
-      testReply();
-    }
-  }, [isOpen, note, replies.length]);
-
-  const handleReply = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!note || !replyContent.trim()) return;
-
-    setIsSubmitting(true);
-    try {
-      const formData = new FormData();
-      formData.append('note_id', note.id);
-      formData.append('content', replyContent.trim());
-      await addReply(formData);
-      setReplyContent('');
-      // Refresh will happen via the action
-    } catch (error) {
-      console.error('Error adding reply:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    setDisplayedReplies(replies);
+  }, [replies, note?.id]);
 
   const getEpisodeTitle = (episodeId: string) => {
     return episodes.find(ep => ep.id === episodeId)?.title || episodeId;
+  };
+
+  const handleReplyAdded = (newReply: NoteReply) => {
+    setDisplayedReplies((prev) => [...prev, newReply]);
   };
 
   if (!note) return null;
@@ -66,7 +36,6 @@ export default function NoteModal({ note, replies, isOpen, onClose, episodes }: 
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -75,7 +44,6 @@ export default function NoteModal({ note, replies, isOpen, onClose, episodes }: 
             onClick={onClose}
           />
 
-          {/* Modal */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -84,7 +52,6 @@ export default function NoteModal({ note, replies, isOpen, onClose, episodes }: 
             onClick={(e) => e.stopPropagation()}
           >
             <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 shadow-2xl max-h-full overflow-hidden flex flex-col w-full max-w-4xl">
-              {/* Header */}
               <div className="p-6 border-b border-white/10">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -113,6 +80,7 @@ export default function NoteModal({ note, replies, isOpen, onClose, episodes }: 
                   <button
                     onClick={onClose}
                     className="p-2 text-white/60 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                    aria-label="Close note modal"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -121,7 +89,6 @@ export default function NoteModal({ note, replies, isOpen, onClose, episodes }: 
                 </div>
               </div>
 
-              {/* Content */}
               <div className="flex-1 overflow-y-auto p-6">
                 <div className="prose prose-invert prose-sm max-w-none mb-8">
                   <ReactMarkdown
@@ -169,14 +136,14 @@ export default function NoteModal({ note, replies, isOpen, onClose, episodes }: 
                   </ReactMarkdown>
                 </div>
 
-                {/* Replies Section */}
-                {replies.length > 0 && (
-                  <div className="border-t border-white/10 pt-6">
-                    <h3 className="text-lg font-medium text-white mb-4">
-                      Replies ({replies.length})
-                    </h3>
-                    <div className="space-y-4">
-                      {replies.map((reply) => (
+                <div className="border-t border-white/10 pt-6">
+                  <h3 className="text-lg font-medium text-white mb-4">
+                    Replies ({displayedReplies.length})
+                  </h3>
+
+                  {displayedReplies.length > 0 ? (
+                    <div className="space-y-4 mb-6">
+                      {displayedReplies.map((reply) => (
                         <div key={reply.id} className="bg-black/20 rounded-lg p-4 border border-white/10">
                           <div className="flex items-center space-x-2 mb-2">
                             <div className={`w-2 h-2 rounded-full ${
@@ -195,31 +162,11 @@ export default function NoteModal({ note, replies, isOpen, onClose, episodes }: 
                         </div>
                       ))}
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <p className="text-white/50 text-sm mb-6">No replies yet. Start the conversation.</p>
+                  )}
 
-                {/* Reply Form */}
-                <div className="border-t border-white/10 pt-6 mt-6">
-                  <h4 className="text-md font-medium text-white mb-3">Add a reply</h4>
-                  <form onSubmit={handleReply} className="space-y-3">
-                    <textarea
-                      value={replyContent}
-                      onChange={(e) => setReplyContent(e.target.value)}
-                      placeholder="Share your thoughts in response..."
-                      rows={3}
-                      className="w-full px-3 py-2 bg-black/30 border border-white/20 rounded-md text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30 text-sm resize-none"
-                      required
-                    />
-                    <div className="flex justify-end">
-                      <button
-                        type="submit"
-                        disabled={isSubmitting || !replyContent.trim()}
-                        className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
-                      >
-                        {isSubmitting ? 'Replying...' : 'Reply'}
-                      </button>
-                    </div>
-                  </form>
+                  <AddReplyForm noteId={note.id} onReplyAdded={handleReplyAdded} />
                 </div>
               </div>
             </div>

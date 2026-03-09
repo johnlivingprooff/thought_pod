@@ -45,3 +45,19 @@ export async function getAllEpisodeNotes(): Promise<Record<string, string>> {
 
   return notes;
 }
+
+export async function getEpisodeNoteSlugs(): Promise<string[]> {
+  try {
+    if (!fs.existsSync(NOTES_DIR)) {
+      return [];
+    }
+
+    return fs
+      .readdirSync(NOTES_DIR)
+      .filter(file => file.endsWith('.md'))
+      .map(file => file.replace('.md', ''));
+  } catch (error) {
+    console.error('Error reading note slugs:', error);
+    return [];
+  }
+}

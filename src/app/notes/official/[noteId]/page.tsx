@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import { getAllNotes, getEpisodes } from '@/lib/db';
 import { Note, Episode, NoteReply, RawNote } from '@/types';
 import Starfield from '@/components/Starfield';
-import Navigation from '@/components/Navigation';
 import OfficialNoteView from '@/components/notes/OfficialNoteView';
 
 interface OfficialNotePageProps {
@@ -40,7 +39,6 @@ export default async function OfficialNotePage({ params }: OfficialNotePageProps
   return (
     <div className="min-h-screen relative">
       <Starfield themeColor={undefined} />
-      <Navigation />
 
       <div className="relative z-10 pt-24">
         <div className="max-w-4xl mx-auto px-6">

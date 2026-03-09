@@ -2,6 +2,7 @@ import { getEpisodes } from '@/lib/db';
 import { Episode } from '@/types';
 import Starfield from '@/components/Starfield';
 import EpisodeNotesIndex from '@/components/notes/EpisodeNotesIndex';
+import { getEpisodeNoteSlugs } from '@/lib/episodeNotes';
 
 async function getEpisodesList(): Promise<Episode[]> {
   const result = await getEpisodes();
@@ -9,7 +10,10 @@ async function getEpisodesList(): Promise<Episode[]> {
 }
 
 export default async function NotesPage() {
-  const episodes = await getEpisodesList();
+  const [episodes, availableNoteSlugs] = await Promise.all([
+    getEpisodesList(),
+    getEpisodeNoteSlugs()
+  ]);
 
   return (
     <div className="min-h-screen relative">
@@ -30,7 +34,7 @@ export default async function NotesPage() {
         {/* Episode Notes Index */}
         <div className="pb-16 px-6">
           <div className="max-w-6xl mx-auto">
-            <EpisodeNotesIndex episodes={episodes} />
+            <EpisodeNotesIndex episodes={episodes} availableNoteSlugs={availableNoteSlugs} />
           </div>
         </div>
       </div>

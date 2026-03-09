@@ -7,7 +7,6 @@ import BackgroundAmbientAudio from '@/components/BackgroundAmbientAudio';
 import FourCs from '@/components/FourCs';
 import EpisodeList from '@/components/EpisodeList';
 import ThoughtPlayer from '@/components/ThoughtPlayer';
-import Navigation from '@/components/Navigation';
 import { Thought } from '@/types';
 
 export default function Home() {
@@ -52,7 +51,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative flex flex-col gap-16 pt-8 pb-16">
-      <Navigation />
       <Starfield themeColor={getThemeColor(selectedTheme)} />
       <BackgroundAmbientAudio />
 
@@ -81,5 +79,4 @@ export default function Home() {
     </div>
   );
 }
-
 

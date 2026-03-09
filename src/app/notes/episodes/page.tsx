@@ -1,7 +1,6 @@
 import { getAllNotes, getEpisodes } from '@/lib/db';
 import { Note, Episode, RawNote } from '@/types';
 import Starfield from '@/components/Starfield';
-import Navigation from '@/components/Navigation';
 import EpisodeNotesList from '@/components/notes/EpisodeNotesList';
 import AddNoteForm from '@/components/notes/AddNoteForm';
 import AddNoteToggle from '@/components/notes/AddNoteToggle';
@@ -30,7 +29,6 @@ export default async function EpisodeNotesPage() {
   return (
     <div className="min-h-screen relative">
       <Starfield themeColor={undefined} />
-      <Navigation />
 
       <div className="relative z-10 pt-24">
         <div className="max-w-7xl mx-auto px-6">

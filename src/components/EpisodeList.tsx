@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Thought } from '@/types';
 import { useAudioStore } from '@/lib/audioStore';
@@ -30,6 +30,36 @@ export default function EpisodeList({
   const { currentEpisode, isPlaying, playEpisode, togglePlayPause } = useAudioStore();
   const { isBookmarked } = useBookmarks();
   const [hovered, setHovered] = useState<string | null>(null);
+  const [availableNoteSlugs, setAvailableNoteSlugs] = useState<Set<string>>(new Set());
+  const [isCheckingNoteAvailability, setIsCheckingNoteAvailability] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchAvailableSlugs = async () => {
+      try {
+        const response = await fetch('/api/notes/available-slugs');
+        if (!response.ok) return;
+
+        const data = await response.json();
+        if (isMounted && Array.isArray(data?.slugs)) {
+          setAvailableNoteSlugs(new Set(data.slugs));
+        }
+      } catch (error) {
+        console.error('Failed to fetch available note slugs:', error);
+      } finally {
+        if (isMounted) {
+          setIsCheckingNoteAvailability(false);
+        }
+      }
+    };
+
+    fetchAvailableSlugs();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filtered = episodes.filter(ep => {
     if (selectedTheme && ep.theme !== selectedTheme) return false;
@@ -75,6 +105,7 @@ export default function EpisodeList({
             const active = currentEpisode?.id === episode.id;
             const playing = active && isPlaying;
             const color = getThemeColor(episode.theme);
+            const hasNotes = availableNoteSlugs.has(episode.slug);
 
             return (
               <motion.article
@@ -113,6 +144,19 @@ export default function EpisodeList({
                           Bookmarked
                         </span>
                       )}
+                      <span className={`text-xs px-2 py-1 rounded ${
+                        isCheckingNoteAvailability
+                          ? 'bg-white/10 text-white/50'
+                          : hasNotes
+                          ? 'bg-emerald-500/20 text-emerald-300'
+                          : 'bg-white/10 text-white/50'
+                      }`}>
+                        {isCheckingNoteAvailability
+                          ? 'Checking notes'
+                          : hasNotes
+                          ? 'Notes available'
+                          : 'No notes yet'}
+                      </span>
                       <span
                         className="text-xs px-3 py-1 rounded-full font-medium"
                         style={{
@@ -138,17 +182,31 @@ export default function EpisodeList({
 
                   {/* Actions */}
                   <div className="flex items-center gap-3 sm:gap-4">
-                    <Link
-                      href={`/notes/episode/${episode.slug}`}
-                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition"
-                      aria-label="Episode notes"
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M8 8H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M8 12H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </Link>
+                    {!isCheckingNoteAvailability && hasNotes ? (
+                      <Link
+                        href={`/notes/episode/${episode.slug}`}
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition"
+                        aria-label={`Open notes for ${episode.title}`}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M8 8H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M8 12H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </Link>
+                    ) : (
+                      <span
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 cursor-not-allowed"
+                        aria-label={isCheckingNoteAvailability ? `Checking notes for ${episode.title}` : `Notes not available for ${episode.title}`}
+                        title={isCheckingNoteAvailability ? 'Checking note availability...' : 'Episode notes are not published yet'}
+                      >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M20 14V7C20 5.34315 18.6569 4 17 4H7C5.34315 4 4 5.34315 4 7V17C4 18.6569 5.34315 20 7 20H13.5M20 14L13.5 20M20 14H15.5C14.3954 14 13.5 14.8954 13.5 16V20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M8 8H16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M8 12H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </span>
+                    )}
 
                     <motion.button
                       whileTap={{ scale: 0.95 }}

@@ -1,10 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Note, Episode, NoteReply } from '@/types';
+import Link from 'next/link';
+import { useState, useEffect, useMemo } from 'react';
+import { Note, Episode, NoteReply, Thought } from '@/types';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import AddReplyForm from './AddReplyForm';
+import { useAudioStore } from '@/lib/audioStore';
+import ThoughtPlayer from '@/components/ThoughtPlayer';
 
 interface OfficialNoteViewProps {
   note: Note;
@@ -14,6 +17,9 @@ interface OfficialNoteViewProps {
 
 export default function OfficialNoteView({ note, replies: initialReplies, episodes }: OfficialNoteViewProps) {
   const [replies, setReplies] = useState<NoteReply[]>(initialReplies);
+  const [allEpisodes, setAllEpisodes] = useState<Thought[]>([]);
+  const [isLoadingEpisodes, setIsLoadingEpisodes] = useState(false);
+  const { currentEpisode, isPlaying, playEpisode, togglePlayPause } = useAudioStore();
 
   useEffect(() => {
     // Fetch replies on client side
@@ -32,8 +38,73 @@ export default function OfficialNoteView({ note, replies: initialReplies, episod
     fetchReplies();
   }, [note.id]);
 
+  const linkedEpisode = useMemo(() => {
+    if (!note.episode_id) return null;
+    return episodes.find(ep => ep.id === note.episode_id) || null;
+  }, [episodes, note.episode_id]);
+
+  useEffect(() => {
+    let isUnmounted = false;
+    const fetchEpisodes = async () => {
+      setIsLoadingEpisodes(true);
+      try {
+        const response = await fetch('/api/episodes');
+        if (!response.ok) {
+          if (!isUnmounted) setAllEpisodes([]);
+          return;
+        }
+
+        const data = await response.json();
+        if (!isUnmounted) {
+          setAllEpisodes(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch episodes for playback:', error);
+        if (!isUnmounted) {
+          setAllEpisodes([]);
+        }
+      } finally {
+        if (!isUnmounted) {
+          setIsLoadingEpisodes(false);
+        }
+      }
+    };
+
+    fetchEpisodes();
+
+    return () => {
+      isUnmounted = true;
+    };
+  }, []);
+
   const getEpisodeTitle = (episodeId: string) => {
     return episodes.find(ep => ep.id === episodeId)?.title || episodeId;
+  };
+
+  const matchedEpisode = useMemo(() => {
+    if (!linkedEpisode) return null;
+
+    return allEpisodes.find((thought) => {
+      if (thought.id === linkedEpisode.id || thought.slug === linkedEpisode.slug) {
+        return true;
+      }
+
+      return thought.title.trim().toLowerCase() === linkedEpisode.title.trim().toLowerCase();
+    }) || null;
+  }, [allEpisodes, linkedEpisode]);
+
+  const activeThought = Boolean(matchedEpisode && currentEpisode?.id === matchedEpisode.id);
+  const canPlay = Boolean(matchedEpisode?.audio);
+
+  const handlePlayClick = () => {
+    if (!matchedEpisode) return;
+
+    if (activeThought) {
+      togglePlayPause();
+      return;
+    }
+
+    playEpisode(matchedEpisode);
   };
 
   const handleReplyAdded = (newReply: NoteReply) => {
@@ -76,6 +147,31 @@ export default function OfficialNoteView({ note, replies: initialReplies, episod
             </>
           )}
         </div>
+
+        {linkedEpisode && (
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href={`/notes/episode/${linkedEpisode.slug}`}
+              className="px-4 py-2 rounded-full border border-white/20 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white transition-colors text-sm"
+            >
+              Open episode note page
+            </Link>
+            <button
+              type="button"
+              onClick={handlePlayClick}
+              disabled={isLoadingEpisodes || !canPlay}
+              className="px-5 py-2 rounded-full border border-white/30 bg-white/15 text-white font-medium hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            >
+              {isLoadingEpisodes
+                ? 'Loading audio...'
+                : activeThought
+                ? isPlaying
+                  ? 'Pause episode'
+                  : 'Resume episode'
+                : 'Play episode'}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Note Content */}
@@ -220,6 +316,8 @@ export default function OfficialNoteView({ note, replies: initialReplies, episod
           </div>
         )}
       </div>
+
+      <ThoughtPlayer episodes={allEpisodes} />
     </div>
   );
 }

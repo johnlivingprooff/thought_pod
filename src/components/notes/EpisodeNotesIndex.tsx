@@ -5,19 +5,19 @@ import { Episode } from '@/types';
 
 interface EpisodeNotesIndexProps {
   episodes: Episode[];
+  availableNoteSlugs: string[];
 }
 
-export default function EpisodeNotesIndex({ episodes }: EpisodeNotesIndexProps) {
-  // Filter episodes that have notes (we'll check this by trying to load them)
-  // For now, show all episodes - the individual pages will handle missing notes
+export default function EpisodeNotesIndex({ episodes, availableNoteSlugs }: EpisodeNotesIndexProps) {
+  const availableSlugSet = new Set(availableNoteSlugs);
+  const episodesWithNotes = episodes
+    .filter(episode => episode.slug && availableSlugSet.has(episode.slug))
+    .sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime());
 
   return (
     <div className="space-y-8">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {episodes
-          .filter(episode => episode.slug) // Only show episodes with slugs
-          .sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime())
-          .map((episode) => (
+        {episodesWithNotes.map((episode) => (
             <Link
               key={episode.id}
               href={`/notes/episode/${episode.slug}`}
@@ -42,9 +42,9 @@ export default function EpisodeNotesIndex({ episodes }: EpisodeNotesIndexProps) 
           ))}
       </div>
 
-      {episodes.length === 0 && (
+      {episodesWithNotes.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-white/50">No episode notes available yet.</p>
+          <p className="text-white/50">No published episode notes are available yet.</p>
         </div>
       )}
     </div>
